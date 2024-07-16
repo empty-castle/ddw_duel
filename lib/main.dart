@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'event/view/event_view.dart';
 
 void main() {
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
   runApp(const MyApp());
 }
 
@@ -10,13 +15,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DDW duo',
+      title: 'DDW duel',
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blueGrey,
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'DDW duo'),
+      home: const MyHomePage(title: 'DDW duel'),
     );
   }
 }
@@ -31,40 +36,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  Widget _selectedPage = const EventView();
 
-  void _incrementCounter() {
+  void _updateBody(Widget newPage) {
     setState(() {
-      _counter++;
+      _selectedPage = newPage;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+        appBar: AppBar(
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: Theme.of(context).colorScheme.onPrimary,
+          centerTitle: true,
+          title: Row(children: [
+            Text(widget.title),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      _updateBody(const EventView());
+                    },
+                    child: const Text("이벤트",
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+            )
+          ]),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+        body: _selectedPage);
   }
 }
