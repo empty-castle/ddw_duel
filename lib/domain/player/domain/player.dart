@@ -5,8 +5,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 class Player implements TableAbstract {
   final int? id;
   final String name;
+  final int eventId;
 
-  Player({required this.id, required this.name});
+  Player({this.id, required this.name, required this.eventId});
 
   @override
   Map<String, dynamic> toMap() {
