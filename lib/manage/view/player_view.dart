@@ -10,6 +10,43 @@ class PlayerView extends StatefulWidget {
 class _PlayerViewState extends State<PlayerView> {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Player view page'),);
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Expanded(
+            child: Container(
+              decoration: const BoxDecoration(color: Colors.blue),
+              child: const Center(
+                child: Text("팀 리스트"),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+            flex: 3,
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    child: const Center(
+                      child: Text("팀 정보"),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    decoration: const BoxDecoration(color: Colors.red),
+                    child: const Center(
+                      child: Text("선수 리스트"),
+                    ),
+                  ),
+                ),
+              ],
+            ))
+      ],
+    );
   }
 }
