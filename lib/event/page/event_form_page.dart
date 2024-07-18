@@ -34,7 +34,7 @@ class _EventFormPageState extends State<EventFormPage> {
       child: Scaffold(
         appBar: AppBar(
             surfaceTintColor: Colors.transparent,
-            backgroundColor: Theme.of(context).colorScheme.onSecondary,
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             centerTitle: true,
             title: const Text('이벤트 등록')),
         body: Center(
