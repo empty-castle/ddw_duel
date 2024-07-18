@@ -36,11 +36,11 @@ class _EventListComponentState extends State<EventListComponent> {
               ],
               rows: widget.events.map((event) {
                 return DataRow(
-                  selected: _selectedEventId == event.id,
+                  selected: _selectedEventId == event.eventId,
                   onSelectChanged: (_) {
                     setState(() {
-                      _selectedEventId = event.id;
-                      widget.onSelectEvent(event.id!);
+                      _selectedEventId = event.eventId;
+                      widget.onSelectEvent(event.eventId!);
                     });
                   },
                   cells: [

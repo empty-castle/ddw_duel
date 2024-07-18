@@ -1,4 +1,4 @@
-import 'package:ddw_duel/domain/event/domain/event_enum.dart';
+import 'package:ddw_duel/domain/event/event_enum.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../database_helper.dart';
@@ -39,7 +39,7 @@ class EventRepository {
       EventEnum.tableName.label,
       event.toMap(),
       where: "${EventEnum.id.label} = ?",
-      whereArgs: [event.id],
+      whereArgs: [event.eventId],
     );
   }
 
@@ -60,7 +60,7 @@ class EventRepository {
 
   Event _makeEvent(Map<String, dynamic> map) {
     return Event(
-      id: map[EventEnum.id.label],
+      eventId: map[EventEnum.id.label],
       name: map[EventEnum.name.label],
       description: map[EventEnum.description.label],
     );

@@ -1,4 +1,6 @@
 import 'package:ddw_duel/domain/event/domain/event.dart';
+import 'package:ddw_duel/manage/view/match_view.dart';
+import 'package:ddw_duel/manage/view/player_view.dart';
 import 'package:flutter/material.dart';
 
 class ManagePage extends StatefulWidget {
@@ -12,13 +14,13 @@ class ManagePage extends StatefulWidget {
 
 class _ManagePageState extends State<ManagePage> {
 
-  // Widget _selectedPage = const ManagePage(event: event);
-  //
-  // void _updateBody(Widget newPage) {
-  //   setState(() {
-  //     _selectedPage = newPage;
-  //   });
-  // }
+  Widget _selectedPage = const MatchView();
+
+  void _updateBody(Widget newPage) {
+    setState(() {
+      _selectedPage = newPage;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +36,16 @@ class _ManagePageState extends State<ManagePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _updateBody(const MatchView());
+                  },
                   child:
                       const Text("대진표", style: TextStyle(color: Colors.white)),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _updateBody(const PlayerView());
+                  },
                   child:
                       const Text("참가자", style: TextStyle(color: Colors.white)),
                 ),
@@ -48,9 +54,7 @@ class _ManagePageState extends State<ManagePage> {
           )
         ]),
       ),
-      body: const Center(
-        child: Text('Welcome to the New Page'),
-      ),
+      body: _selectedPage,
     );
   }
 }

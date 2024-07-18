@@ -1,24 +1,38 @@
-import 'package:ddw_duel/domain/player/domain/player_enum.dart';
+import 'package:ddw_duel/domain/player/player_enum.dart';
 import 'package:ddw_duel/domain/table_abstract.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class Player implements TableAbstract {
-  final int? id;
+  final int? playerId;
   final String name;
-  final int eventId;
+  final int teamId;
+  final int playerOrder;
+  final int point = 0;
 
-  Player({this.id, required this.name, required this.eventId});
+  Player(
+      {this.playerId,
+      required this.name,
+      required this.teamId,
+      required this.playerOrder});
 
   @override
   Map<String, dynamic> toMap() {
-    // TODO: implement toMap
-    throw UnimplementedError();
+    return {
+      'name': name,
+      'teamId': teamId,
+      'playerOrder': playerOrder,
+      'point': point,
+    };
   }
 
   static Future<void> initTable(Database db, int newVersion) async {
     await db.execute('''
       CREATE TABLE ${PlayerEnum.tableName.label}(
         ${PlayerEnum.id.label}id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ${PlayerEnum.name.label} TEXT,
+        ${PlayerEnum.teamId.label} INTEGER,
+        ${PlayerEnum.playerOrder.label} INTEGER,
+        ${PlayerEnum.point.label} INTEGER
       )
     ''');
   }

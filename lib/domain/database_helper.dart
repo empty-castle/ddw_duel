@@ -1,7 +1,12 @@
+import 'package:ddw_duel/domain/game/domain/game.dart';
+import 'package:ddw_duel/domain/match/domain/match.dart';
+import 'package:ddw_duel/domain/player/domain/player.dart';
+import 'package:ddw_duel/domain/team/domain/team.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'duel/domain/duel.dart';
 import 'event/domain/event.dart';
 
 class DatabaseHelper {
@@ -30,5 +35,10 @@ class DatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     Event.initTable(db, newVersion);
+    Team.initTable(db, newVersion);
+    Player.initTable(db, newVersion);
+    Match.initTable(db, newVersion);
+    Duel.initTable(db, newVersion);
+    Game.initTable(db, newVersion);
   }
 }
