@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DDW duel',
       theme: ThemeData(
+
         brightness: Brightness.dark,
         primarySwatch: Colors.blueGrey,
         useMaterial3: true,

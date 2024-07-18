@@ -35,7 +35,7 @@ class _EventDetailComponentState extends State<EventDetailComponent> {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
@@ -102,7 +102,8 @@ class _EventDetailComponentState extends State<EventDetailComponent> {
         ),
         const Expanded(
             flex: 2,
-            child: Column(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('참가자 명단:',
                     style:
