@@ -1,6 +1,6 @@
 import 'package:ddw_duel/domain/event/domain/event.dart';
-import 'package:ddw_duel/manage/view/match_view.dart';
-import 'package:ddw_duel/manage/view/player_view.dart';
+import 'package:ddw_duel/manage/match/match_view.dart';
+import 'package:ddw_duel/manage/player/player_view.dart';
 import 'package:flutter/material.dart';
 
 class ManagePage extends StatefulWidget {

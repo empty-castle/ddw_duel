@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:window_size/window_size.dart';
 
-import 'event/view/event_view.dart';
+import 'event/event_view.dart';
 
 void main() async {
   sqfliteFfiInit();
@@ -26,12 +27,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DDW duel',
-      theme: ThemeData(
-
-        brightness: Brightness.dark,
-        primarySwatch: Colors.blueGrey,
-        useMaterial3: true,
-      ),
+      theme: FlexThemeData.light(scheme: FlexScheme.deepBlue),
+      darkTheme: FlexThemeData.dark(scheme: FlexScheme.deepBlue),
+      themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'DDW duel'),
     );
   }

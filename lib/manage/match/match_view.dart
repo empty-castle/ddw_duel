@@ -1,4 +1,7 @@
+import 'package:ddw_duel/manage/match/match_bracket_component.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class MatchView extends StatefulWidget {
   const MatchView({super.key});
@@ -17,16 +20,22 @@ class _MatchViewState extends State<MatchView> {
             child: Column(
               children: [
                 Container(
-                  decoration: const BoxDecoration(color: Colors.green),
+                  decoration: const BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(color: Colors.white24, width: 1))),
                   child: const Center(
                     child: Text("라운드 & 버튼"),
                   ),
                 ),
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(color: Colors.blue),
-                    child: const Center(
-                      child: Text("대진표"),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        MatchBracketComponent(),
+                        MatchBracketComponent(),
+                        MatchBracketComponent()
+                      ],
                     ),
                   ),
                 ),
@@ -35,7 +44,9 @@ class _MatchViewState extends State<MatchView> {
         Expanded(
             flex: 1,
             child: Container(
-              decoration: const BoxDecoration(color: Colors.red),
+              decoration: const BoxDecoration(
+                  border: Border(
+                      left: BorderSide(color: Colors.white24, width: 1))),
               child: const Center(
                 child: Text("팀 순위"),
               ),

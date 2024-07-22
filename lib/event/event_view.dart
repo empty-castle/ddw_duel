@@ -1,8 +1,8 @@
 import 'package:ddw_duel/domain/event/repository/event_repository.dart';
-import 'package:ddw_duel/event/component/event_detail_component.dart';
+import 'package:ddw_duel/event/event_detail_component.dart';
 import 'package:flutter/material.dart';
 
-import '../component/event_list_component.dart';
+import 'event_list_component.dart';
 
 class EventView extends StatefulWidget {
   const EventView({super.key});
@@ -59,7 +59,7 @@ class _EventViewState extends State<EventView> {
           child: Container(
             decoration: const BoxDecoration(
               border:
-                  Border(left: BorderSide(color: Colors.white24, width: 0.3)),
+                  Border(left: BorderSide(color: Colors.white24, width: 1)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),

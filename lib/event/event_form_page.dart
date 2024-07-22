@@ -2,7 +2,7 @@ import 'package:ddw_duel/domain/event/domain/event.dart';
 import 'package:ddw_duel/domain/event/repository/event_repository.dart';
 import 'package:flutter/material.dart';
 
-import '../../base/SnackbarHelper.dart';
+import '../base/SnackbarHelper.dart';
 
 class EventFormPage extends StatefulWidget {
   const EventFormPage({super.key});

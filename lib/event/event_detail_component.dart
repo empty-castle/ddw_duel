@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/event/domain/event.dart';
-import '../../domain/event/repository/event_repository.dart';
-import '../../manage/page/manage_page.dart';
+import '../domain/event/domain/event.dart';
+import '../domain/event/repository/event_repository.dart';
+import '../manage/manage_page.dart';
 
 class EventDetailComponent extends StatefulWidget {
   final int? eventId;

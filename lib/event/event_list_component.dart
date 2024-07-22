@@ -1,8 +1,8 @@
-import 'package:ddw_duel/event/page/event_form_page.dart';
+import 'package:ddw_duel/event/event_form_page.dart';
 import 'package:flutter/material.dart';
 
-import '../../domain/event/domain/event.dart';
-import '../../domain/event/repository/event_repository.dart';
+import '../domain/event/domain/event.dart';
+import '../domain/event/repository/event_repository.dart';
 
 class EventListComponent extends StatefulWidget {
   final Function(int eventId) onSelectEvent;

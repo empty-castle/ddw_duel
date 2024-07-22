@@ -15,7 +15,6 @@ class _PlayerViewState extends State<PlayerView> {
         Expanded(
           flex: 1,
           child: Container(
-            decoration: const BoxDecoration(color: Colors.blue),
             child: const Center(
               child: Text("팀 리스트"),
             ),
@@ -24,7 +23,9 @@ class _PlayerViewState extends State<PlayerView> {
         Expanded(
           flex: 1,
           child: Container(
-            decoration: const BoxDecoration(color: Colors.red),
+            decoration: const BoxDecoration(
+              border: Border(left: BorderSide(color: Colors.white24, width: 1)),
+            ),
             child: const Center(
               child: Text("선수 리스트"),
             ),
@@ -33,7 +34,9 @@ class _PlayerViewState extends State<PlayerView> {
         Expanded(
           flex: 1,
           child: Container(
-            decoration: const BoxDecoration(color: Colors.green),
+            decoration: const BoxDecoration(
+              border: Border(left: BorderSide(color: Colors.white24, width: 1)),
+            ),
             child: const Center(
               child: Text("매칭 기록"),
             ),
