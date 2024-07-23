@@ -26,8 +26,6 @@ class _ManagePageState extends State<ManagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: Theme.of(context).colorScheme.onSecondary,
         centerTitle: true,
         title: Row(children: [
           Text(widget.event.name),

@@ -27,8 +27,49 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DDW duel',
-      theme: FlexThemeData.light(scheme: FlexScheme.deepBlue),
-      darkTheme: FlexThemeData.dark(scheme: FlexScheme.deepBlue),
+      theme: FlexThemeData.light(
+        scheme: FlexScheme.materialHc,
+        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+        blendLevel: 7,
+        subThemesData: const FlexSubThemesData(
+          blendOnLevel: 10,
+          blendOnColors: false,
+          useTextTheme: true,
+          useM2StyleDividerInM3: true,
+          inputDecoratorIsFilled: false,
+          alignedDropdown: true,
+          useInputDecoratorThemeInDialogs: true,
+          outlinedButtonRadius: 0.0,
+          filledButtonRadius: 0.0,
+          elevatedButtonRadius: 0.0,
+          textButtonRadius: 0.0,
+        ),
+        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+        useMaterial3: true,
+        swapLegacyOnMaterial3: true,
+        fontFamily: 'Pretendard',
+      ),
+      darkTheme: FlexThemeData.dark(
+        scheme: FlexScheme.materialHc,
+        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+        blendLevel: 13,
+        subThemesData: const FlexSubThemesData(
+          blendOnLevel: 20,
+          useTextTheme: true,
+          useM2StyleDividerInM3: true,
+          inputDecoratorIsFilled: false,
+          alignedDropdown: true,
+          useInputDecoratorThemeInDialogs: true,
+          outlinedButtonRadius: 0.0,
+          filledButtonRadius: 0.0,
+          elevatedButtonRadius: 0.0,
+          textButtonRadius: 0.0,
+        ),
+        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+        useMaterial3: true,
+        swapLegacyOnMaterial3: true,
+        fontFamily: 'Pretendard',
+      ),
       themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'DDW duel'),
     );
@@ -57,8 +98,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          surfaceTintColor: Colors.transparent,
-          backgroundColor: Theme.of(context).colorScheme.onPrimary,
           centerTitle: true,
           title: Row(children: [
             Text(widget.title),

@@ -8,19 +8,27 @@ class MatchBracketComponent extends StatefulWidget {
 }
 
 class _MatchBracketComponentState extends State<MatchBracketComponent> {
+  final List<String> _scores = [
+    '3:0',
+    '2:1',
+    '1:2',
+    '0:3',
+  ];
+
+  String? _gameAScore;
+  String? _gameBScore;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
           decoration: BoxDecoration(
-              border:
-              Border.all(color: Colors.white24, width: 1)),
+              border: Border.all(color: Colors.white24, width: 1)),
           child: Column(
             children: [
               Container(
-                decoration: const BoxDecoration(
-                    color: Colors.blueGrey),
+                decoration: const BoxDecoration(color: Color(0xFF8A61DB)),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -30,19 +38,19 @@ class _MatchBracketComponentState extends State<MatchBracketComponent> {
                   ],
                 ),
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('A'),
-                  Text(' 3:0 '),
+                  gameAScoreDropDownButton(),
                   Text('A'),
                 ],
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('B'),
-                  Text(' 0:3 '),
+                  gameBScoreDropDownButton(),
                   Text('B'),
                 ],
               )
@@ -54,5 +62,34 @@ class _MatchBracketComponentState extends State<MatchBracketComponent> {
         ),
       ],
     );
+  }
+
+  Widget gameScoreDropDownButton(String? currentScore, ValueChanged<String?> onChanged) {
+    return DropdownButton(
+      value: currentScore,
+      items: _scores.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget gameAScoreDropDownButton() {
+    return gameScoreDropDownButton(_gameAScore, (String? value) {
+      setState(() {
+        _gameAScore = value;
+      });
+    });
+  }
+
+  Widget gameBScoreDropDownButton() {
+    return gameScoreDropDownButton(_gameBScore, (String? value) {
+      setState(() {
+        _gameBScore = value;
+      });
+    });
   }
 }

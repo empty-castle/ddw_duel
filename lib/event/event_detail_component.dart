@@ -39,14 +39,11 @@ class _EventDetailComponentState extends State<EventDetailComponent> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
-          child: TextButton(
+          child: ElevatedButton(
             onPressed: _onPressed,
-            style: TextButton.styleFrom(
-              shape: const RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.blue)),
-              padding: const EdgeInsets.all(8.0),
+            child: const Text(
+              '관리',
             ),
-            child: const Text('관리'),
           ),
         ),
         Expanded(
