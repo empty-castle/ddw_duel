@@ -19,7 +19,9 @@ class EventRepository {
   Future<List<Event>> findEvents() async {
     Database db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(EventEnum.tableName.label);
-    return _makeEventList(maps);
+    return List.generate(maps.length, (i) {
+      return _makeEvent(maps[i]);
+    });
   }
 
   Future<Event?> findEventsById(int eventId) async {
@@ -29,7 +31,7 @@ class EventRepository {
     if (maps.isNotEmpty) {
       return _makeEvent(maps.first);
     } else {
-      return null; // 결과가 없으면 null 반환
+      return null;
     }
   }
 
@@ -50,12 +52,6 @@ class EventRepository {
       where: "${EventEnum.id.label} = ?",
       whereArgs: [id],
     );
-  }
-
-  List<Event> _makeEventList(List<Map<String, dynamic>> maps) {
-    return List.generate(maps.length, (i) {
-      return _makeEvent(maps[i]);
-    });
   }
 
   Event _makeEvent(Map<String, dynamic> map) {

@@ -3,7 +3,7 @@ enum PlayerEnum {
   id('playerId'),
   name('name'),
   teamId('teamId'),
-  playerOrder('playerOrder'),
+  position('position'),
   point('point'),
   ;
 

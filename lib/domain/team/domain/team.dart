@@ -4,18 +4,22 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class Team implements TableAbstract {
   final int? teamId;
-  final String name;
+  String name;
   final int eventId;
-  final int point = 0;
+  final int point;
 
-  Team({this.teamId, required this.eventId, required this.name});
+  Team(
+      {this.teamId,
+      required this.eventId,
+      this.point = 0,
+      required this.name});
 
   @override
   Map<String, dynamic> toMap() {
     return {
-      'name': name,
-      'eventId': eventId,
-      'point': point,
+      TeamEnum.name.label: name,
+      TeamEnum.eventId.label: eventId,
+      TeamEnum.point.label: point,
     };
   }
 

@@ -1,5 +1,5 @@
-import 'package:ddw_duel/manage/match/match_bracket_component.dart';
-import 'package:ddw_duel/manage/match/match_team_ranking_component.dart';
+import 'package:ddw_duel/view/manage/match/match_bracket_component.dart';
+import 'package:ddw_duel/view/manage/match/match_team_ranking_component.dart';
 import 'package:flutter/material.dart';
 
 class MatchView extends StatefulWidget {

@@ -2,7 +2,7 @@ import 'package:ddw_duel/domain/event/domain/event.dart';
 import 'package:ddw_duel/domain/event/repository/event_repository.dart';
 import 'package:flutter/material.dart';
 
-import '../base/SnackbarHelper.dart';
+import '/base/SnackbarHelper.dart';
 
 class EventFormPage extends StatefulWidget {
   const EventFormPage({super.key});
@@ -21,6 +21,19 @@ class _EventFormPageState extends State<EventFormPage> {
   String _eventName = '';
   String _description = '';
 
+  void _onPressed() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      await eventRepo
+          .saveEvent(Event(name: _eventName, description: _description));
+      hasUpdated = true;
+      if (mounted) {
+        SnackbarHelper.showInfoSnackbar(context, "$_eventName 이벤트 저장이 완료되었습니다.");
+      }
+      _formKey.currentState!.reset();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -32,9 +45,7 @@ class _EventFormPageState extends State<EventFormPage> {
         return;
       },
       child: Scaffold(
-        appBar: AppBar(
-            centerTitle: true,
-            title: const Text('이벤트 등록')),
+        appBar: AppBar(centerTitle: true, title: const Text('이벤트 등록')),
         body: Center(
           child: SizedBox(
             width: 600,
@@ -85,7 +96,8 @@ class _EventFormPageState extends State<EventFormPage> {
                         child: ElevatedButton(
                           onPressed: _onPressed,
                           style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 150.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 150.0),
                           ),
                           child: const Text('저장'),
                         ),
@@ -99,18 +111,5 @@ class _EventFormPageState extends State<EventFormPage> {
         ),
       ),
     );
-  }
-
-  void _onPressed() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      await eventRepo
-          .saveEvent(Event(name: _eventName, description: _description));
-      hasUpdated = true;
-      if (mounted) {
-        SnackbarHelper.showSnackbar(context, "$_eventName 이벤트 저장이 완료되었습니다.");
-      }
-      _formKey.currentState!.reset();
-    }
   }
 }

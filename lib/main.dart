@@ -1,11 +1,14 @@
 import 'dart:io';
 
+import 'package:ddw_duel/provider/event_provider.dart';
+import 'package:ddw_duel/provider/player_provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:window_size/window_size.dart';
+import 'package:provider/provider.dart';
 
-import 'event/event_view.dart';
+import 'view/event/event_view.dart';
 
 void main() async {
   sqfliteFfiInit();
@@ -17,7 +20,14 @@ void main() async {
     setWindowMinSize(const Size(1600, 900));
   }
 
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(
+      create: (context) => EventProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => PlayerProvider(),
+    )
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

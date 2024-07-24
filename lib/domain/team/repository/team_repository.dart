@@ -7,16 +7,40 @@ import '../domain/team.dart';
 class TeamRepository {
   DatabaseHelper dbHelper = DatabaseHelper();
 
-  Future<void> saveMatch(Team team) async {
+  Future<int> saveTeam(Team team) async {
     Database db = await dbHelper.database;
-    await db.insert(
+    return await db.insert(
       TeamEnum.tableName.label,
       team.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<void> updateMatch(Team team) async {
+  Future<List<Team>> findTeams(int eventId) async {
+    Database db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+        TeamEnum.tableName.label,
+        where: '${TeamEnum.eventId.label} = ?',
+        whereArgs: [eventId]);
+    return List.generate(maps.length, (i) {
+      return _makeTeam(maps[i]);
+    });
+  }
+
+  Future<Team?> findTeam(int teamId) async {
+    Database db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+        TeamEnum.tableName.label,
+        where: '${TeamEnum.id.label} = ?',
+        whereArgs: [teamId]);
+    if (maps.isNotEmpty) {
+      return _makeTeam(maps.first);
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> updateTeam(Team team) async {
     Database db = await dbHelper.database;
     await db.update(
       TeamEnum.tableName.label,
@@ -26,12 +50,21 @@ class TeamRepository {
     );
   }
 
-  Future<void> deleteMatch(int id) async {
+  Future<void> deleteTeam(int id) async {
     Database db = await dbHelper.database;
     await db.delete(
       TeamEnum.tableName.label,
       where: "${TeamEnum.id.label} = ?",
       whereArgs: [id],
+    );
+  }
+
+  Team _makeTeam(Map<String, dynamic> map) {
+    return Team(
+      teamId: map[TeamEnum.id.label],
+      eventId: map[TeamEnum.eventId.label],
+      name: map[TeamEnum.name.label],
+      point: map[TeamEnum.point.label]
     );
   }
 }

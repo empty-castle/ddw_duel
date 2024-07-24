@@ -4,34 +4,34 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class Player implements TableAbstract {
   final int? playerId;
-  final String name;
+  String name;
   final int teamId;
-  final int playerOrder;
+  final int position;
   final int point = 0;
 
   Player(
       {this.playerId,
       required this.name,
       required this.teamId,
-      required this.playerOrder});
+      required this.position});
 
   @override
   Map<String, dynamic> toMap() {
     return {
-      'name': name,
-      'teamId': teamId,
-      'playerOrder': playerOrder,
-      'point': point,
+      PlayerEnum.name.label: name,
+      PlayerEnum.teamId.label: teamId,
+      PlayerEnum.position.label: position,
+      PlayerEnum.point.label: point,
     };
   }
 
   static Future<void> initTable(Database db, int newVersion) async {
     await db.execute('''
       CREATE TABLE ${PlayerEnum.tableName.label}(
-        ${PlayerEnum.id.label}id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ${PlayerEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${PlayerEnum.name.label} TEXT,
         ${PlayerEnum.teamId.label} INTEGER,
-        ${PlayerEnum.playerOrder.label} INTEGER,
+        ${PlayerEnum.position.label} INTEGER,
         ${PlayerEnum.point.label} INTEGER
       )
     ''');

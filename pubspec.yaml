@@ -39,6 +39,7 @@ dependencies:
       url: https://github.com/google/flutter-desktop-embedding
       path: plugins/window_size
   flex_color_scheme: ^7.3.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +96,6 @@ flutter:
   fonts:
     - family: Pretendard
       fonts:
-        - asset: assets/fonts/Pretendard-Regular.ttf
-        - asset: assets/fonts/Pretendard-Bold.ttf
+        - asset: assets/fonts/Pretendard-Regular.otf
+        - asset: assets/fonts/Pretendard-Bold.otf
           weight: 700

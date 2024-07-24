@@ -1,6 +1,6 @@
 import 'package:ddw_duel/domain/event/domain/event.dart';
-import 'package:ddw_duel/manage/match/match_view.dart';
-import 'package:ddw_duel/manage/player/player_view.dart';
+import 'package:ddw_duel/view/manage/match/match_view.dart';
+import 'package:ddw_duel/view/manage/player/player_view.dart';
 import 'package:flutter/material.dart';
 
 class ManagePage extends StatefulWidget {
@@ -13,13 +13,18 @@ class ManagePage extends StatefulWidget {
 }
 
 class _ManagePageState extends State<ManagePage> {
-
-  Widget _selectedPage = const MatchView();
+  late Widget _selectedPage;
 
   void _updateBody(Widget newPage) {
     setState(() {
       _selectedPage = newPage;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPage = const MatchView();
   }
 
   @override

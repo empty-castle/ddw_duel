@@ -16,6 +16,31 @@ class PlayerRepository {
     );
   }
 
+  Future<List<Player>> findPlayers(int teamId) async {
+    Database db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+        PlayerEnum.tableName.label,
+        where: '${PlayerEnum.teamId.label} = ?',
+        whereArgs: [teamId]);
+    return List.generate(maps.length, (i) {
+      return _makePlayer(maps[i]);
+    });
+  }
+
+  Future<Player?> findPlayerByPosition(int teamId, int position) async {
+    Database db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      PlayerEnum.tableName.label,
+      where: '${PlayerEnum.teamId.label} = ? AND ${PlayerEnum.position.label} = ?',
+      whereArgs: [teamId, position]
+    );
+    if (maps.isNotEmpty) {
+      return _makePlayer(maps.first);
+    } else {
+      return null;
+    }
+  }
+
   Future<void> updatePlayer(Player player) async {
     Database db = await dbHelper.database;
     await db.update(
@@ -33,5 +58,13 @@ class PlayerRepository {
       where: "${PlayerEnum.id.label} = ?",
       whereArgs: [id],
     );
+  }
+
+  Player _makePlayer(Map<String, dynamic> map) {
+    return Player(
+        playerId: map[PlayerEnum.id.label],
+        name: map[PlayerEnum.name.label],
+        teamId: map[PlayerEnum.teamId.label],
+        position: map[PlayerEnum.position.label]);
   }
 }
