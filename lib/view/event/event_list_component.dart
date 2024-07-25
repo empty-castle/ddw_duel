@@ -1,3 +1,4 @@
+import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/view/event/event_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,14 +17,13 @@ class EventListComponent extends StatefulWidget {
 class _EventListComponentState extends State<EventListComponent> {
   final EventRepository eventRepo = EventRepository();
 
-  List<Event> _events = [];
   int? _selectedEventId;
 
-  void _onSelectEvent(int eventId) {
+  void _onSelectEvent(Event event) {
     setState(() {
-      _selectedEventId = eventId;
+      _selectedEventId = event.eventId;
     });
-    Provider.of<EventProvider>(context, listen: false).setEventId(eventId);
+    Provider.of<SelectedEventProvider>(context, listen: false).setSelectedEvent(event);
   }
 
   void _onPressed() async {
@@ -32,96 +32,87 @@ class _EventListComponentState extends State<EventListComponent> {
       MaterialPageRoute(builder: (context) => const EventFormPage()),
     );
 
-    if (needRefresh != null && needRefresh) {
-      fetchEvent();
+    if (needRefresh != null && needRefresh && mounted) {
+      Provider.of<EventProvider>(context, listen: false).fetchEvent();
     }
-  }
-
-  void fetchEvent() async {
-    List<Event> events = await eventRepo.findEvents();
-    setState(() {
-      _events = events;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchEvent();
   }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: ElevatedButton(
-                  onPressed: _onPressed,
-                  child: const Text(
-                    '등록',
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                    child: DataTable(
-                      showCheckboxColumn: false,
-                      columns: const [
-                        DataColumn(
-                            label: Text('이름',
-                                style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('설명',
-                                style: TextStyle(fontWeight: FontWeight.bold))),
-                      ],
-                      rows: _events.map((event) {
-                        return DataRow(
-                          selected: _selectedEventId == event.eventId,
-                          onSelectChanged: (_) {
-                            _onSelectEvent(event.eventId!);
-                          },
-                          cells: [
-                            DataCell(
-                              SizedBox(
-                                width: constraints.maxWidth * 0.4,
-                                child: Text(
-                                  event.name,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: false,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              SizedBox(
-                                width: constraints.maxWidth * 0.5,
-                                child: Text(
-                                  event.description ?? '',
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: false,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+      child: Consumer<EventProvider>(
+        builder: (context, provider, child) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: ElevatedButton(
+                      onPressed: _onPressed,
+                      child: const Text(
+                        '등록',
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ],
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                        child: DataTable(
+                          showCheckboxColumn: false,
+                          columns: const [
+                            DataColumn(
+                                label: Text('이름',
+                                    style: TextStyle(fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('설명',
+                                    style: TextStyle(fontWeight: FontWeight.bold))),
+                          ],
+                          rows: provider.events.map((event) {
+                            return DataRow(
+                              selected: _selectedEventId == event.eventId,
+                              onSelectChanged: (_) {
+                                _onSelectEvent(event);
+                              },
+                              cells: [
+                                DataCell(
+                                  SizedBox(
+                                    width: constraints.maxWidth * 0.4,
+                                    child: Text(
+                                      event.name,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: false,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: constraints.maxWidth * 0.5,
+                                    child: Text(
+                                      event.description ?? '',
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: false,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           );
         },
-      ),
+      )
     );
   }
 }

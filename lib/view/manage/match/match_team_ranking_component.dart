@@ -1,4 +1,7 @@
+import 'package:ddw_duel/domain/team/domain/team.dart';
+import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MatchTeamRankingComponent extends StatefulWidget {
   const MatchTeamRankingComponent({super.key});
@@ -11,17 +14,21 @@ class MatchTeamRankingComponent extends StatefulWidget {
 class _MatchTeamRankingComponentState extends State<MatchTeamRankingComponent> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        teamContainer(),
-        teamContainer(),
-        teamContainer(),
-        teamContainer()
-      ],
+    return Consumer<RankProvider>(
+      builder: (context, rankProvider, child) {
+        return ListView.builder(
+          itemCount: rankProvider.rankedTeams.length,
+          itemBuilder: (context, index) {
+            final team = rankProvider.rankedTeams[index].team;
+            final rank = rankProvider.rankedTeams[index].rank;
+            return teamContainer(team, rank);
+          },
+        );
+      },
     );
   }
 
-  Widget teamContainer() {
+  Widget teamContainer(Team team, int rank) {
     return Container(
       decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.white38, width: 1))),
@@ -31,17 +38,17 @@ class _MatchTeamRankingComponentState extends State<MatchTeamRankingComponent> {
               decoration: const BoxDecoration(
                 color: Color(0x3DEFB7FF),
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('#1'),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(width: 36, child: Text('#$rank')),
               )),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text('55 point'),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text('${team.point} pts'),
           ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text('팀A'),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(team.name),
           ),
         ],
       ),

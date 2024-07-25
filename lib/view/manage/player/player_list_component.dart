@@ -12,8 +12,11 @@ class PlayerListComponent extends StatefulWidget {
 class _PlayerListComponentState extends State<PlayerListComponent> {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-        child: Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
+    return Expanded(child:
+        Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
+      if (playerProvider.isLoading) {
+        return const Center(child: CircularProgressIndicator());
+      }
       return LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(

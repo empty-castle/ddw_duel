@@ -1,6 +1,8 @@
 import 'package:ddw_duel/domain/team/repository/team_repository.dart';
 import 'package:ddw_duel/provider/event_provider.dart';
 import 'package:ddw_duel/provider/player_provider.dart';
+import 'package:ddw_duel/provider/selected_event_provider.dart';
+import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:ddw_duel/view/manage/player/player_history_component.dart';
 import 'package:ddw_duel/view/manage/player/player_list_component.dart';
 import 'package:ddw_duel/view/manage/player/player_manage_component.dart';
@@ -21,7 +23,7 @@ class _PlayerViewState extends State<PlayerView>
   final TeamRepository teamRepo = TeamRepository();
 
   late TabController _tabController;
-  final List<String> _tabs = [ '매칭 히스토리', '팀 관리', '선수 관리'];
+  final List<String> _tabs = ['매칭 히스토리', '팀 관리', '선수 관리'];
   late List<Widget> _tabViews;
 
   void initTab(int eventId) {
@@ -34,12 +36,11 @@ class _PlayerViewState extends State<PlayerView>
   }
 
   @override
-  void initState() {
-    super.initState();
-    int eventId = Provider.of<EventProvider>(context, listen: false).eventId!;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    int eventId = Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!.eventId!;
     initTab(eventId);
     Provider.of<PlayerProvider>(context, listen: false).clearPlayerProvider();
-    Provider.of<PlayerProvider>(context, listen: false).fetchTeams(eventId);
   }
 
   @override

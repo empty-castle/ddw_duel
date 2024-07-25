@@ -1,4 +1,3 @@
-import 'package:ddw_duel/domain/game/domain/game.dart';
 import 'package:ddw_duel/domain/match/domain/match.dart';
 import 'package:ddw_duel/domain/player/domain/player.dart';
 import 'package:ddw_duel/domain/team/domain/team.dart';
@@ -39,6 +38,5 @@ class DatabaseHelper {
     Player.initTable(db, newVersion);
     Match.initTable(db, newVersion);
     Duel.initTable(db, newVersion);
-    Game.initTable(db, newVersion);
   }
 }

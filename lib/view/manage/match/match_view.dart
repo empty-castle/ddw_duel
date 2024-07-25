@@ -1,6 +1,11 @@
-import 'package:ddw_duel/view/manage/match/match_bracket_component.dart';
+import 'package:ddw_duel/domain/team/domain/team.dart';
+import 'package:ddw_duel/provider/rank_provider.dart';
+import 'package:ddw_duel/provider/selected_event_provider.dart';
+import 'package:ddw_duel/provider/team_provider.dart';
+import 'package:ddw_duel/view/manage/match/match_round_component.dart';
 import 'package:ddw_duel/view/manage/match/match_team_ranking_component.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MatchView extends StatefulWidget {
   const MatchView({super.key});
@@ -30,36 +35,14 @@ class _MatchViewState extends State<MatchView> {
                         Expanded(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: OutlinedButton(
-                                    onPressed: () {},
-                                    child: const Text(
-                                      '1라운드',
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: OutlinedButton(
-                                    onPressed: () {},
-                                    child: const Text(
-                                      '2라운드',
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: OutlinedButton(
-                                    onPressed: () {},
-                                    child: const Text(
-                                      '3라운드(진행 중)',
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            child: Consumer<SelectedEventProvider>(
+                              builder: (context, provider, child) {
+                                List<Widget> roundButtons =
+                                    _makeRoundButtons(provider);
+                                return Row(
+                                  children: roundButtons,
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -79,7 +62,7 @@ class _MatchViewState extends State<MatchView> {
                               ElevatedButton(
                                 onPressed: () {},
                                 child: const Text(
-                                  '추첨',
+                                  '라운드 생성',
                                 ),
                               ),
                             ],
@@ -92,13 +75,7 @@ class _MatchViewState extends State<MatchView> {
                 const Expanded(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        MatchBracketComponent(),
-                        MatchBracketComponent(),
-                        MatchBracketComponent()
-                      ],
-                    ),
+                    child: MatchRoundComponent(),
                   ),
                 ),
               ],
@@ -116,5 +93,34 @@ class _MatchViewState extends State<MatchView> {
             ))
       ],
     );
+  }
+
+  List<Widget> _makeRoundButtons(SelectedEventProvider provider) {
+    List<Widget> roundButtons = [];
+    for (int i = 1; i <= provider.selectedEvent!.currentRound; i++) {
+      roundButtons.add(
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: OutlinedButton(
+            onPressed: () {
+              // todo
+            },
+            child: Text(
+              i == provider.selectedEvent!.currentRound
+                  ? '$i라운드(진행 중)'
+                  : '$i라운드',
+            ),
+          ),
+        ),
+      );
+    }
+    return roundButtons;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    List<Team> teams = Provider.of<TeamProvider>(context).teams;
+    Provider.of<RankProvider>(context, listen: false).makeRankedTeams(teams, 0);
   }
 }

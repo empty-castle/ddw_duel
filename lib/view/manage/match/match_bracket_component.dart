@@ -65,15 +65,18 @@ class _MatchBracketComponentState extends State<MatchBracketComponent> {
   }
 
   Widget gameScoreDropDownButton(String? currentScore, ValueChanged<String?> onChanged) {
-    return DropdownButton(
-      value: currentScore,
-      items: _scores.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: onChanged,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+      child: DropdownButton(
+        value: currentScore,
+        items: _scores.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        onChanged: onChanged,
+      ),
     );
   }
 

@@ -1,12 +1,19 @@
+import 'package:ddw_duel/domain/event/domain/event.dart';
+import 'package:ddw_duel/domain/event/repository/event_repository.dart';
 import 'package:flutter/material.dart';
 
 class EventProvider with ChangeNotifier {
-  int? _eventId;
+  final EventRepository eventRepo = EventRepository();
 
-  int? get eventId => _eventId;
+  List<Event> _events = [];
 
-  void setEventId(int eventId) {
-    _eventId = eventId;
+  List<Event> get events => _events;
+
+  // fixme
+  Future<void> fetchEvent() async {
+    await Future.delayed(Duration(seconds: 1));
+    List<Event> events = await eventRepo.findEvents();
+    _events = events;
     notifyListeners();
   }
 }

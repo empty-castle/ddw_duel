@@ -2,50 +2,29 @@ import 'package:ddw_duel/domain/player/domain/player.dart';
 import 'package:ddw_duel/domain/player/repository/player_repository.dart';
 import 'package:flutter/material.dart';
 
-import '../domain/team/domain/team.dart';
-import '../domain/team/repository/team_repository.dart';
-
 class PlayerProvider with ChangeNotifier {
-  final TeamRepository teamRepo = TeamRepository();
   final PlayerRepository playerRepo = PlayerRepository();
 
-  List<Team> _teams = [];
-  int? _selectedTeamId;
   List<Player> _players = [];
+  bool _isLoading = false;
 
-  List<Team> get teams => _teams;
-  int? get selectedTeamId => _selectedTeamId;
   List<Player> get players => _players;
+  bool get isLoading => _isLoading;
 
-  void setTeams(List<Team> teams) {
-    _teams = teams;
+  Future<void> fetchPlayers(int teamId) async {
+    _isLoading = true;
     notifyListeners();
-  }
 
-  void setSelectedTeamId(int selectedTeamId) {
-    _selectedTeamId = selectedTeamId;
-    fetchPlayers(selectedTeamId);
-    notifyListeners();
-  }
-
-  void fetchTeams(int eventId) async {
-    List<Team> teams = await teamRepo.findTeams(eventId);
-    setTeams(teams);
-  }
-
-  void setPlayers(List<Player> players) {
-    _players = players;
-    notifyListeners();
-  }
-
-  void fetchPlayers(int teamId) async {
+    // fixme
+    await Future.delayed(Duration(seconds: 1));
     List<Player> players = await playerRepo.findPlayers(teamId);
-    setPlayers(players);
+    _players = players;
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   void clearPlayerProvider() {
-    _teams = [];
     _players = [];
-    _selectedTeamId = null;
   }
 }

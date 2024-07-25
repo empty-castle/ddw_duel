@@ -1,6 +1,8 @@
 import 'package:ddw_duel/domain/team/repository/team_repository.dart';
 import 'package:ddw_duel/provider/event_provider.dart';
-import 'package:ddw_duel/provider/player_provider.dart';
+import 'package:ddw_duel/provider/selected_event_provider.dart';
+import 'package:ddw_duel/provider/selected_team_provider.dart';
+import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +17,7 @@ class TeamMangeComponent extends StatefulWidget {
 }
 
 class _TeamMangeComponentState extends State<TeamMangeComponent> {
+  // todo 저장 이후에 팀 이름이 안 바뀜
   final TeamRepository teamRepo = TeamRepository();
 
   final TextEditingController _teamNameController = TextEditingController();
@@ -32,13 +35,14 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      int eventId = Provider.of<EventProvider>(context, listen: false).eventId!;
+      int eventId =
+          Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!.eventId!;
 
       _selectedTeam!.name = _teamName;
       await teamRepo.updateTeam(_selectedTeam!);
 
       if (mounted) {
-        Provider.of<PlayerProvider>(context, listen: false).fetchTeams(eventId);
+        Provider.of<TeamProvider>(context, listen: false).fetchTeams(eventId);
         SnackbarHelper.showInfoSnackbar(context, "$_teamName 저장이 완료되었습니다.");
       }
       _formKey.currentState!.reset();
@@ -48,19 +52,12 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    int? selectedTeamId = Provider.of<PlayerProvider>(context).selectedTeamId;
-    if (selectedTeamId == null) {
-      return;
-    }
-
-    Team? selectedTeam = await teamRepo.findTeam(selectedTeamId);
+    Team? selectedTeam = Provider.of<SelectedTeamProvider>(context).selectedTeam;
     if (selectedTeam == null) {
       return;
     }
 
-    setState(() {
-      _selectedTeam = selectedTeam;
-    });
+    _selectedTeam = selectedTeam;
     _teamNameController.text = selectedTeam.name;
   }
 

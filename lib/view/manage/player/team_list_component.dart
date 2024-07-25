@@ -3,6 +3,9 @@ import 'package:ddw_duel/domain/team/domain/team.dart';
 import 'package:ddw_duel/domain/team/repository/team_repository.dart';
 import 'package:ddw_duel/provider/event_provider.dart';
 import 'package:ddw_duel/provider/player_provider.dart';
+import 'package:ddw_duel/provider/selected_event_provider.dart';
+import 'package:ddw_duel/provider/selected_team_provider.dart';
+import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,8 +19,21 @@ class TeamListComponent extends StatefulWidget {
 class _TeamListComponentState extends State<TeamListComponent> {
   final TeamRepository teamRepo = TeamRepository();
 
+  int? _selectedTeamId;
+
+  void _onSelectChanged(Team team) {
+    setState(() {
+      _selectedTeamId = team.teamId;
+    });
+    Provider.of<SelectedTeamProvider>(context, listen: false).setSelectedTeam(team);
+    Provider.of<PlayerProvider>(context, listen: false)
+        .fetchPlayers(team.teamId!);
+  }
+
   void _onPressedNewTeam() async {
-    int eventId = Provider.of<EventProvider>(context, listen: false).eventId!;
+    int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
+        .selectedEvent!
+        .eventId!;
     List<Team> teams = await teamRepo.findTeams(eventId);
 
     Team team = Team(
@@ -27,15 +43,15 @@ class _TeamListComponentState extends State<TeamListComponent> {
     teamRepo.saveTeam(team);
 
     if (mounted) {
-      Provider.of<PlayerProvider>(context, listen: false).fetchTeams(eventId);
+      Provider.of<TeamProvider>(context, listen: false).fetchTeams(eventId);
       SnackbarHelper.showInfoSnackbar(context, "${team.name} 팀 저장이 완료되었습니다.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(child:
-        Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
+    return Expanded(
+        child: Consumer<TeamProvider>(builder: (context, teamProvider, child) {
       return LayoutBuilder(
         builder: (context, constraints) {
           return Column(
@@ -62,12 +78,11 @@ class _TeamListComponentState extends State<TeamListComponent> {
                             label: Text('이름',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
                       ],
-                      rows: playerProvider.teams.map((team) {
+                      rows: teamProvider.teams.map((team) {
                         return DataRow(
-                            selected:
-                                playerProvider.selectedTeamId == team.teamId,
+                            selected: _selectedTeamId == team.teamId,
                             onSelectChanged: (_) {
-                              playerProvider.setSelectedTeamId(team.teamId!);
+                              _onSelectChanged(team);
                             },
                             cells: [
                               DataCell(SizedBox(

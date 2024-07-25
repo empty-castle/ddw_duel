@@ -1,7 +1,9 @@
 import 'package:ddw_duel/base/SnackbarHelper.dart';
 import 'package:ddw_duel/domain/player/domain/player.dart';
 import 'package:ddw_duel/domain/player/repository/player_repository.dart';
+import 'package:ddw_duel/domain/team/domain/team.dart';
 import 'package:ddw_duel/provider/player_provider.dart';
+import 'package:ddw_duel/provider/selected_team_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -27,9 +29,10 @@ class _PlayerFormComponentState extends State<PlayerFormComponent> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      int? selectedTeamId =
-          Provider.of<PlayerProvider>(context, listen: false).selectedTeamId;
-      if (selectedTeamId == null) {
+      Team? selectedTeam =
+          Provider.of<SelectedTeamProvider>(context, listen: false)
+              .selectedTeam;
+      if (selectedTeam == null) {
         SnackbarHelper.showErrorSnackbar(context, "팀 선택이 되어 있지 않습니다.");
         return;
       }
@@ -37,7 +40,7 @@ class _PlayerFormComponentState extends State<PlayerFormComponent> {
       if (_player == null) {
         Player player = Player(
           name: _playerName,
-          teamId: selectedTeamId,
+          teamId: selectedTeam.teamId!,
           position: widget.position,
         );
         await playerRepo.savePlayer(player);
@@ -48,7 +51,7 @@ class _PlayerFormComponentState extends State<PlayerFormComponent> {
 
       if (mounted) {
         Provider.of<PlayerProvider>(context, listen: false)
-            .fetchPlayers(selectedTeamId);
+            .fetchPlayers(selectedTeam.teamId!);
         SnackbarHelper.showInfoSnackbar(
             context, "$_playerName 선수 저장이 완료되었습니다.");
       }
@@ -56,25 +59,28 @@ class _PlayerFormComponentState extends State<PlayerFormComponent> {
     }
   }
 
+  Player? getFirstPlayerByPosition(List<Player> players, int position) {
+    for (Player player in players) {
+      if (player.position == position) {
+        return player;
+      }
+    }
+    return null;
+  }
+
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    int? selectedTeamId = Provider.of<PlayerProvider>(context).selectedTeamId;
-    if (selectedTeamId == null) {
-      return;
-    }
+    List<Player> players = Provider.of<PlayerProvider>(context).players;
+    Player? player = getFirstPlayerByPosition(players, widget.position);
 
-    Player? player =
-        await playerRepo.findPlayerByPosition(selectedTeamId, widget.position);
     if (player == null) {
       _player = null;
       _playerNameController.text = '';
       return;
     }
 
-    setState(() {
-      _player = player;
-    });
+    _player = player;
     _playerNameController.text = player.name;
   }
 

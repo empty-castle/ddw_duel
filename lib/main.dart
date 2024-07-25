@@ -2,6 +2,10 @@ import 'dart:io';
 
 import 'package:ddw_duel/provider/event_provider.dart';
 import 'package:ddw_duel/provider/player_provider.dart';
+import 'package:ddw_duel/provider/rank_provider.dart';
+import 'package:ddw_duel/provider/selected_event_provider.dart';
+import 'package:ddw_duel/provider/selected_team_provider.dart';
+import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -25,8 +29,20 @@ void main() async {
       create: (context) => EventProvider(),
     ),
     ChangeNotifierProvider(
+      create: (context) => SelectedEventProvider(),
+    ),
+    ChangeNotifierProvider(
       create: (context) => PlayerProvider(),
-    )
+    ),
+    ChangeNotifierProvider(
+      create: (context) => TeamProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => SelectedTeamProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => RankProvider(),
+    ),
   ], child: const MyApp()));
 }
 

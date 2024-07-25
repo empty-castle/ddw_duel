@@ -6,8 +6,9 @@ class Event implements TableAbstract {
   final int? eventId;
   final String name;
   final String? description;
+  final int currentRound;
 
-  Event({this.eventId, required this.name, this.description});
+  Event({this.eventId, required this.name, this.description, this.currentRound = 0});
 
   @override
   Map<String, dynamic> toMap() {
@@ -20,6 +21,7 @@ class Event implements TableAbstract {
         ${EventEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${EventEnum.name.label} TEXT,
         ${EventEnum.description.label} TEXT
+        ${EventEnum.currentRound.label} INTEGER
       )
     ''');
   }

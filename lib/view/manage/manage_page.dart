@@ -1,12 +1,12 @@
-import 'package:ddw_duel/domain/event/domain/event.dart';
+import 'package:ddw_duel/provider/selected_event_provider.dart';
+import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:ddw_duel/view/manage/match/match_view.dart';
 import 'package:ddw_duel/view/manage/player/player_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ManagePage extends StatefulWidget {
-  final Event event;
-
-  const ManagePage({super.key, required this.event});
+  const ManagePage({super.key});
 
   @override
   State<ManagePage> createState() => _ManagePageState();
@@ -29,11 +29,17 @@ class _ManagePageState extends State<ManagePage> {
 
   @override
   Widget build(BuildContext context) {
+    int eventId =
+        Provider.of<SelectedEventProvider>(context).selectedEvent!.eventId!;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Row(children: [
-          Text(widget.event.name),
+          Consumer<SelectedEventProvider>(
+            builder: (context, provider, child) {
+              return Text(provider.selectedEvent!.name);
+            },
+          ),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -57,7 +63,16 @@ class _ManagePageState extends State<ManagePage> {
           )
         ]),
       ),
-      body: _selectedPage,
+      body: FutureBuilder(
+        future: Provider.of<TeamProvider>(context, listen: false)
+            .fetchTeams(eventId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return _selectedPage;
+        },
+      ),
     );
   }
 }

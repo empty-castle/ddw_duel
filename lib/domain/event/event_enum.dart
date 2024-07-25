@@ -3,6 +3,7 @@ enum EventEnum {
   id('eventId'),
   name('name'),
   description('description'),
+  currentRound('currentRound'),
   ;
 
   final String label;

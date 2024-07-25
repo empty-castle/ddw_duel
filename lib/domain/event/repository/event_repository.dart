@@ -59,6 +59,7 @@ class EventRepository {
       eventId: map[EventEnum.id.label],
       name: map[EventEnum.name.label],
       description: map[EventEnum.description.label],
+      currentRound: map[EventEnum.currentRound.label],
     );
   }
 }
