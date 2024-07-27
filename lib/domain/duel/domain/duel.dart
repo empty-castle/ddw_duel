@@ -4,7 +4,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class Duel implements TableAbstract {
   final int? duelId;
-  final int matchId;
+  final int gameId;
   final int duelOrder;
   final int player1Id;
   final int player1Point = 0;
@@ -13,7 +13,7 @@ class Duel implements TableAbstract {
 
   Duel(
       {this.duelId,
-      required this.matchId,
+      required this.gameId,
       required this.duelOrder,
       required this.player1Id,
       required this.player2Id});
@@ -21,12 +21,12 @@ class Duel implements TableAbstract {
   @override
   Map<String, dynamic> toMap() {
     return {
-      'matchId': matchId,
-      'duelOrder': duelOrder,
-      'player1Id': player1Id,
-      'player1Point': player1Point,
-      'player2Id': player2Id,
-      'player2Point': player2Point,
+      DuelEnum.gameId.label: gameId,
+      DuelEnum.duelOrder.label: duelOrder,
+      DuelEnum.player1Id.label: player1Id,
+      DuelEnum.player1Point.label: player1Point,
+      DuelEnum.player2Id.label: player2Id,
+      DuelEnum.player2Point.label: player2Point,
     };
   }
 
@@ -34,7 +34,7 @@ class Duel implements TableAbstract {
     await db.execute('''
       CREATE TABLE ${DuelEnum.tableName.label}(
         ${DuelEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
-        ${DuelEnum.matchId.label} INTEGER,
+        ${DuelEnum.gameId.label} INTEGER,
         ${DuelEnum.duelOrder.label} INTEGER,
         ${DuelEnum.player1Id.label} INTEGER,
         ${DuelEnum.player1Point.label} INTEGER,

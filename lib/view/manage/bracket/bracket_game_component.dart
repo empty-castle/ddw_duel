@@ -1,13 +1,16 @@
+import 'package:ddw_duel/domain/game/domain/game.dart';
 import 'package:flutter/material.dart';
 
-class MatchBracketComponent extends StatefulWidget {
-  const MatchBracketComponent({super.key});
+class BracketGameComponent extends StatefulWidget {
+  final Game game;
+
+  const BracketGameComponent({super.key, required this.game});
 
   @override
-  State<MatchBracketComponent> createState() => _MatchBracketComponentState();
+  State<BracketGameComponent> createState() => _BracketGameComponentState();
 }
 
-class _MatchBracketComponentState extends State<MatchBracketComponent> {
+class _BracketGameComponentState extends State<BracketGameComponent> {
   final List<String> _scores = [
     '3:0',
     '2:1',
@@ -64,7 +67,8 @@ class _MatchBracketComponentState extends State<MatchBracketComponent> {
     );
   }
 
-  Widget gameScoreDropDownButton(String? currentScore, ValueChanged<String?> onChanged) {
+  Widget gameScoreDropDownButton(
+      String? currentScore, ValueChanged<String?> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: DropdownButton(

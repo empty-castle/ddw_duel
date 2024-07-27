@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ddw_duel/provider/event_provider.dart';
 import 'package:ddw_duel/provider/player_provider.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
+import 'package:ddw_duel/provider/round_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/selected_team_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
@@ -42,6 +43,9 @@ void main() async {
     ),
     ChangeNotifierProvider(
       create: (context) => RankProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => RoundProvider(),
     ),
   ], child: const MyApp()));
 }

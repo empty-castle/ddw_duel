@@ -1,6 +1,6 @@
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
-import 'package:ddw_duel/view/manage/match/match_view.dart';
+import 'package:ddw_duel/view/manage/bracket/bracket_view.dart';
 import 'package:ddw_duel/view/manage/player/player_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +24,7 @@ class _ManagePageState extends State<ManagePage> {
   @override
   void initState() {
     super.initState();
-    _selectedPage = const MatchView();
+    _selectedPage = const BracketView();
   }
 
   @override
@@ -46,7 +46,7 @@ class _ManagePageState extends State<ManagePage> {
               children: <Widget>[
                 TextButton(
                   onPressed: () {
-                    _updateBody(const MatchView());
+                    _updateBody(const BracketView());
                   },
                   child:
                       const Text("대진표", style: TextStyle(color: Colors.white)),

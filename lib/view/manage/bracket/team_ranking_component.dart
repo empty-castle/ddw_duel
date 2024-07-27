@@ -3,15 +3,14 @@ import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class MatchTeamRankingComponent extends StatefulWidget {
-  const MatchTeamRankingComponent({super.key});
+class TeamRankingComponent extends StatefulWidget {
+  const TeamRankingComponent({super.key});
 
   @override
-  State<MatchTeamRankingComponent> createState() =>
-      _MatchTeamRankingComponentState();
+  State<TeamRankingComponent> createState() => _TeamRankingComponentState();
 }
 
-class _MatchTeamRankingComponentState extends State<MatchTeamRankingComponent> {
+class _TeamRankingComponentState extends State<TeamRankingComponent> {
   @override
   Widget build(BuildContext context) {
     return Consumer<RankProvider>(

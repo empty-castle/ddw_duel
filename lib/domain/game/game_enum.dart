@@ -1,6 +1,6 @@
-enum MatchEnum {
-  tableName('Match'),
-  id('matchId'),
+enum GameEnum {
+  tableName('Game'),
+  id('gameId'),
   eventId('eventId'),
   round('round'),
   team1Id('team1Id'),
@@ -11,5 +11,5 @@ enum MatchEnum {
 
   final String label;
 
-  const MatchEnum(this.label);
+  const GameEnum(this.label);
 }

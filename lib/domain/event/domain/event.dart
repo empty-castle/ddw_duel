@@ -6,13 +6,17 @@ class Event implements TableAbstract {
   final int? eventId;
   final String name;
   final String? description;
-  final int currentRound;
+  int currentRound;
 
   Event({this.eventId, required this.name, this.description, this.currentRound = 0});
 
   @override
   Map<String, dynamic> toMap() {
-    return {'name': name, 'description': description};
+    return {
+      EventEnum.name.label: name,
+      EventEnum.description.label: description,
+      EventEnum.currentRound.label: currentRound,
+    };
   }
 
   static Future<void> initTable(Database db, int newVersion) async {
@@ -20,7 +24,7 @@ class Event implements TableAbstract {
       CREATE TABLE ${EventEnum.tableName.label}(
         ${EventEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${EventEnum.name.label} TEXT,
-        ${EventEnum.description.label} TEXT
+        ${EventEnum.description.label} TEXT,
         ${EventEnum.currentRound.label} INTEGER
       )
     ''');

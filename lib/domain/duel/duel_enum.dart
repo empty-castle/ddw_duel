@@ -1,7 +1,7 @@
 enum DuelEnum {
   tableName('Duel'),
   id('duelId'),
-  matchId('matchId'),
+  gameId('gameId'),
   duelOrder('duelOrder'),
   player1Id('player1Id'),
   player1Point('player1Point'),
