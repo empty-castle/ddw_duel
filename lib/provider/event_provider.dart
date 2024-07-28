@@ -9,8 +9,8 @@ class EventProvider with ChangeNotifier {
 
   List<Event> get events => _events;
 
-  // fixme
   Future<void> fetchEvent() async {
+    // fixme
     await Future.delayed(Duration(seconds: 1));
     List<Event> events = await eventRepo.findEvents();
     _events = events;

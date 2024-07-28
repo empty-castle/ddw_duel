@@ -21,24 +21,12 @@ class PlayerRepository {
     final List<Map<String, dynamic>> maps = await db.query(
         PlayerEnum.tableName.label,
         where: '${PlayerEnum.teamId.label} = ?',
-        whereArgs: [teamId]);
+        whereArgs: [teamId],
+        orderBy: PlayerEnum.position.label
+    );
     return List.generate(maps.length, (i) {
       return _makePlayer(maps[i]);
     });
-  }
-
-  Future<Player?> findPlayerByPosition(int teamId, int position) async {
-    Database db = await dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      PlayerEnum.tableName.label,
-      where: '${PlayerEnum.teamId.label} = ? AND ${PlayerEnum.position.label} = ?',
-      whereArgs: [teamId, position]
-    );
-    if (maps.isNotEmpty) {
-      return _makePlayer(maps.first);
-    } else {
-      return null;
-    }
   }
 
   Future<void> updatePlayer(Player player) async {

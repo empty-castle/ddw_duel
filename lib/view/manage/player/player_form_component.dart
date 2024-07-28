@@ -72,7 +72,7 @@ class _PlayerFormComponentState extends State<PlayerFormComponent> {
   void didChangeDependencies() async {
     super.didChangeDependencies();
     List<Player> players = Provider.of<PlayerProvider>(context).players;
-    Player? player = getFirstPlayerByPosition(players, widget.position);
+    Player? player = players[widget.position];
 
     if (player == null) {
       _player = null;

@@ -1,11 +1,13 @@
+import 'package:ddw_duel/domain/duel/domain/duel.dart';
 import 'package:ddw_duel/domain/event/domain/event.dart';
 import 'package:ddw_duel/domain/event/repository/event_repository.dart';
 import 'package:ddw_duel/domain/game/domain/game.dart';
 import 'package:ddw_duel/domain/game/repository/game_repository.dart';
 import 'package:ddw_duel/domain/team/domain/team.dart';
+import 'package:ddw_duel/provider/duel_provider.dart';
 import 'package:ddw_duel/provider/model/RankTeam.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
-import 'package:ddw_duel/provider/round_provider.dart';
+import 'package:ddw_duel/provider/game_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:ddw_duel/view/manage/bracket/bracket_component.dart';
@@ -24,12 +26,16 @@ class _BracketViewState extends State<BracketView> {
   final EventRepository eventRepo = EventRepository();
   final GameRepository gameRepo = GameRepository();
 
+  void _onPressedCalculateResults() {
+    Map<int, Map<int, Duel>> duelMap = Provider.of<DuelProvider>(context, listen: false).duelMap;
+    // todo 각 게임 검증 이후에 저장 진행
+    
+  }
+
   void _onPressedNewRound() {
     Event selectedEvent = Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!;
     _createNewRound(selectedEvent);
     _createBracket(selectedEvent);
-    // todo 라운드 대진표 만드는 함수 돌리고 round_provider 에 set 하고 그걸 match_bracket_component 에서 빌드하고
-    // todo team 에 히스토리를 만들어 넣어야 함. match 대진표에 따라서
   }
 
   void _createNewRound(Event selectedEvent) {
@@ -55,10 +61,9 @@ class _BracketViewState extends State<BracketView> {
         ));
       }
     }
-    for (var game in games) {
-      gameRepo.saveGame(game);
-    }
-    Provider.of<RoundProvider>(context, listen: false).setGames(games);
+    // todo games 저장한 다음에 id 가 부여되니까 다시 games 를 받아와야 한다
+    gameRepo.saveAllGame(games);
+    Provider.of<GameProvider>(context, listen: false).setGames(games);
   }
 
   @override
@@ -99,7 +104,7 @@ class _BracketViewState extends State<BracketView> {
                               Padding(
                                 padding: const EdgeInsets.only(right: 8.0),
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: _onPressedCalculateResults,
                                   child: const Text(
                                     '집계',
                                   ),
@@ -168,5 +173,8 @@ class _BracketViewState extends State<BracketView> {
     super.didChangeDependencies();
     List<Team> teams = Provider.of<TeamProvider>(context).teams;
     Provider.of<RankProvider>(context, listen: false).makeRankedTeams(teams, 0);
+
+    Event selectedEvent = Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!;
+    Provider.of<GameProvider>(context, listen: false).fetchGames(selectedEvent);
   }
 }

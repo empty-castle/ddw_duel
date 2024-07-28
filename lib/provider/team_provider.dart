@@ -9,8 +9,8 @@ class TeamProvider with ChangeNotifier {
 
   List<Team> get teams => _teams;
 
-  // fixme
   Future<void> fetchTeams(int eventId) async {
+    // fixme
     await Future.delayed(Duration(seconds: 1));
     List<Team> teams = await teamRepo.findTeams(eventId);
     _teams = teams;

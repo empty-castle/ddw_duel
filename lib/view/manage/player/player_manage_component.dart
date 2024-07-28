@@ -38,7 +38,7 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
                     SizedBox(
                       height: 8,
                     ),
-                    PlayerFormComponent(position: 1)
+                    PlayerFormComponent(position: 0)
                   ],
                 ),
               )),
@@ -56,7 +56,7 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
                   SizedBox(
                     height: 8,
                   ),
-                  PlayerFormComponent(position: 2)
+                  PlayerFormComponent(position: 1)
                 ],
               )),
             ],
