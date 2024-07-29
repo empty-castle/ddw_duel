@@ -1,6 +1,6 @@
-import 'package:ddw_duel/domain/event/domain/event.dart';
-import 'package:ddw_duel/domain/game/domain/game.dart';
-import 'package:ddw_duel/domain/game/repository/game_repository.dart';
+import 'package:ddw_duel/db/domain/event.dart';
+import 'package:ddw_duel/db/domain/game.dart';
+import 'package:ddw_duel/db/repository/game_repository.dart';
 import 'package:flutter/cupertino.dart';
 
 class GameProvider with ChangeNotifier {

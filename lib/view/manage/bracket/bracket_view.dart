@@ -1,13 +1,12 @@
-import 'package:ddw_duel/domain/duel/domain/duel.dart';
-import 'package:ddw_duel/domain/event/domain/event.dart';
-import 'package:ddw_duel/domain/event/repository/event_repository.dart';
-import 'package:ddw_duel/domain/game/domain/game.dart';
-import 'package:ddw_duel/domain/game/repository/game_repository.dart';
-import 'package:ddw_duel/domain/team/domain/team.dart';
-import 'package:ddw_duel/provider/duel_provider.dart';
+import 'package:ddw_duel/db/domain/event.dart';
+import 'package:ddw_duel/db/domain/game.dart';
+import 'package:ddw_duel/db/domain/team.dart';
+import 'package:ddw_duel/db/repository/duel_repository.dart';
+import 'package:ddw_duel/db/repository/event_repository.dart';
+import 'package:ddw_duel/db/repository/game_repository.dart';
+import 'package:ddw_duel/provider/game_provider.dart';
 import 'package:ddw_duel/provider/model/RankTeam.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
-import 'package:ddw_duel/provider/game_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:ddw_duel/view/manage/bracket/bracket_component.dart';
@@ -25,12 +24,7 @@ class BracketView extends StatefulWidget {
 class _BracketViewState extends State<BracketView> {
   final EventRepository eventRepo = EventRepository();
   final GameRepository gameRepo = GameRepository();
-
-  void _onPressedCalculateResults() {
-    Map<int, Map<int, Duel>> duelMap = Provider.of<DuelProvider>(context, listen: false).duelMap;
-    // todo 각 게임 검증 이후에 저장 진행
-    
-  }
+  final DuelRepository duelRepo = DuelRepository();
 
   void _onPressedNewRound() {
     Event selectedEvent = Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!;
@@ -101,15 +95,6 @@ class _BracketViewState extends State<BracketView> {
                           padding: const EdgeInsets.only(left: 16.0),
                           child: Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: ElevatedButton(
-                                  onPressed: _onPressedCalculateResults,
-                                  child: const Text(
-                                    '집계',
-                                  ),
-                                ),
-                              ),
                               ElevatedButton(
                                 onPressed: _onPressedNewRound,
                                 child: const Text(

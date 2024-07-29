@@ -1,7 +1,7 @@
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:ddw_duel/view/manage/bracket/bracket_view.dart';
-import 'package:ddw_duel/view/manage/player/player_view.dart';
+import 'package:ddw_duel/view/manage/entry/entry_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,13 +24,12 @@ class _ManagePageState extends State<ManagePage> {
   @override
   void initState() {
     super.initState();
-    _selectedPage = const BracketView();
+    // todo
+    _selectedPage = const EntryView();
   }
 
   @override
   Widget build(BuildContext context) {
-    int eventId =
-        Provider.of<SelectedEventProvider>(context).selectedEvent!.eventId!;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -53,7 +52,7 @@ class _ManagePageState extends State<ManagePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    _updateBody(const PlayerView());
+                    _updateBody(const EntryView());
                   },
                   child:
                       const Text("참가자", style: TextStyle(color: Colors.white)),
@@ -63,16 +62,7 @@ class _ManagePageState extends State<ManagePage> {
           )
         ]),
       ),
-      body: FutureBuilder(
-        future: Provider.of<TeamProvider>(context, listen: false)
-            .fetchTeams(eventId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return _selectedPage;
-        },
-      ),
+      body: _selectedPage,
     );
   }
 }

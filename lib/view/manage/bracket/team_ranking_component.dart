@@ -1,4 +1,4 @@
-import 'package:ddw_duel/domain/team/domain/team.dart';
+import 'package:ddw_duel/db/domain/team.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

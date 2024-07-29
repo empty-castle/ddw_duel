@@ -1,14 +1,12 @@
-import 'package:ddw_duel/base/SnackbarHelper.dart';
-import 'package:ddw_duel/domain/duel/domain/duel.dart';
-import 'package:ddw_duel/domain/game/domain/game.dart';
-import 'package:ddw_duel/domain/player/domain/player.dart';
-import 'package:ddw_duel/domain/player/repository/player_repository.dart';
-import 'package:ddw_duel/domain/team/domain/team.dart';
-import 'package:ddw_duel/domain/team/repository/team_repository.dart';
-import 'package:ddw_duel/provider/duel_provider.dart';
+import 'package:ddw_duel/base/snackbar_helper.dart';
+import 'package:ddw_duel/db/domain/duel.dart';
+import 'package:ddw_duel/db/domain/game.dart';
+import 'package:ddw_duel/db/domain/player.dart';
+import 'package:ddw_duel/db/domain/team.dart';
+import 'package:ddw_duel/db/repository/player_repository.dart';
+import 'package:ddw_duel/db/repository/team_repository.dart';
 import 'package:ddw_duel/view/manage/bracket/model/duel_score.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class BracketGameComponent extends StatefulWidget {
   final Game game;
@@ -34,11 +32,11 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
   Team? _team1;
   Team? _team2;
 
-  List<Player>? _team1Players;
-  List<Player>? _team2Players;
+  Map<int, Player>? _team1PlayersMap;
+  Map<int, Player>? _team2PlayersMap;
 
-  DuelScore? _dualATeam1Score;
-  DuelScore? _dualBTeam1Score;
+  DuelScore? _dualAScore;
+  DuelScore? _dualBScore;
 
   @override
   Widget build(BuildContext context) {
@@ -60,26 +58,26 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${_team1?.name}'),
+                        Text(_team1!.name),
                         const Text(' vs '),
-                        Text('${_team2?.name}'),
+                        Text(_team2!.name),
                       ],
                     ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('${_team1Players?[0].name}'),
+                      Text(_team1PlayersMap![1]!.name),
                       dualAScoreDropDownButton(),
-                      Text('${_team2Players?[0].name}'),
+                      Text(_team2PlayersMap![1]!.name),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('${_team1Players?[1].name}'),
+                      Text(_team1PlayersMap![2]!.name),
                       dualBScoreDropDownButton(),
-                      Text('${_team2Players?[1].name}'),
+                      Text(_team2PlayersMap![2]!.name),
                     ],
                   )
                 ],
@@ -117,11 +115,22 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
     List<Player> team1Players = await playerRepo.findPlayers(team1.teamId!);
     List<Player> team2Players = await playerRepo.findPlayers(team2.teamId!);
 
-    _team1Players = team1Players;
-    _team2Players = team2Players;
+    _team1PlayersMap = _playersToMap(team1Players);
+    _team2PlayersMap = _playersToMap(team2Players);
+    
+    
   }
 
-  Widget scoreDropDownButton(DuelScore? currentScore, ValueChanged<DuelScore?> onChanged) {
+  Map<int, Player> _playersToMap(List<Player> players) {
+    Map<int, Player> playerMap = {};
+    for (var player in players) {
+      playerMap[player.position] = player;
+    }
+    return playerMap;
+  }
+
+  Widget scoreDropDownButton(
+      DuelScore? currentScore, ValueChanged<DuelScore?> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: DropdownButton<DuelScore>(
@@ -138,34 +147,68 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
   }
 
   Widget dualAScoreDropDownButton() {
-    return scoreDropDownButton(_dualATeam1Score, (DuelScore? value) {
-      _putDuel(0);
+    return scoreDropDownButton(_dualAScore, (DuelScore? value) {
+      _saveOrUpdateDuel(value!, 1);
       setState(() {
-        _dualATeam1Score = value;
+        _dualAScore = value;
       });
     });
   }
 
   Widget dualBScoreDropDownButton() {
-    return scoreDropDownButton(_dualBTeam1Score, (DuelScore? value) {
-      _putDuel(1);
+    return scoreDropDownButton(_dualBScore, (DuelScore? value) {
+      _saveOrUpdateDuel(value!, 2);
       setState(() {
-        _dualBTeam1Score = value;
+        _dualBScore = value;
       });
     });
   }
 
-  void _convertWinsToPoints(int wins) {
+  int _convertPointsToWins(double points, int position) {
     int round = widget.game.round;
+    int wins = 0;
+    if (round % 2 != 0) {
+      if (position == 1) {
+        wins = (points / 1.5).round();
+      } else if (position == 2) {
+        wins = (points / 1.0).round();
+      }
+    } else {
+      if (position == 1) {
+        wins = (points / 1.0).round();
+      } else if (position == 2) {
+        wins = (points / 1.5).round();
+      }
+    }
+    return wins;
   }
 
-  void _putDuel(int duelOrder) {
-    Provider.of<DuelProvider>(context, listen: false).putDuel(Duel(
+  double _convertWinsToPoints(int wins, int position) {
+    int round = widget.game.round;
+    double points = 0;
+    if (round % 2 != 0) {
+      if (position == 1) {
+        points = wins * 1.5;
+      } else if (position == 2) {
+        points = wins * 1.0;
+      }
+    } else {
+      if (position == 1) {
+        points = wins * 1.0;
+      } else if (position == 2) {
+        points = wins * 1.5;
+      }
+    }
+    return points;
+  }
+
+  void _saveOrUpdateDuel(DuelScore dualScore, int position) {
+    Duel(
         gameId: widget.game.gameId!,
-        duelPosition: duelOrder,
-        player1Id: _team1Players![duelOrder].playerId!,
-        player1Point: 0,
-        player2Id: _team2Players![duelOrder].playerId!,
-        player2Point: 0));
+        position: position,
+        player1Id: _team1PlayersMap![position]!.playerId!,
+        player1Point: _convertWinsToPoints(dualScore.player1Wins, position),
+        player2Id: _team2PlayersMap![position]!.playerId!,
+        player2Point: _convertWinsToPoints(dualScore.player2Wins, position));
   }
 }

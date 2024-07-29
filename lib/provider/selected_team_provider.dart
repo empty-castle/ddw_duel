@@ -1,4 +1,4 @@
-import 'package:ddw_duel/domain/team/domain/team.dart';
+import 'package:ddw_duel/db/domain/team.dart';
 import 'package:flutter/cupertino.dart';
 
 class SelectedTeamProvider with ChangeNotifier {

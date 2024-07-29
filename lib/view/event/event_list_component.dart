@@ -1,10 +1,10 @@
+import 'package:ddw_duel/db/domain/event.dart';
+import 'package:ddw_duel/db/repository/event_repository.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/view/event/event_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '/domain/event/domain/event.dart';
-import '/domain/event/repository/event_repository.dart';
 import '../../provider/event_provider.dart';
 
 class EventListComponent extends StatefulWidget {

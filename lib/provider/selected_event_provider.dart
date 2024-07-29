@@ -1,4 +1,4 @@
-import 'package:ddw_duel/domain/event/domain/event.dart';
+import 'package:ddw_duel/db/domain/event.dart';
 import 'package:flutter/cupertino.dart';
 
 class SelectedEventProvider with ChangeNotifier {

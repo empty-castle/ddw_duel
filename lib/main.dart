@@ -1,18 +1,18 @@
 import 'dart:io';
 
-import 'package:ddw_duel/provider/duel_provider.dart';
+import 'package:ddw_duel/provider/entry_model_provider.dart';
 import 'package:ddw_duel/provider/event_provider.dart';
-import 'package:ddw_duel/provider/player_provider.dart';
-import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:ddw_duel/provider/game_provider.dart';
+import 'package:ddw_duel/provider/rank_provider.dart';
+import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/selected_team_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:window_size/window_size.dart';
-import 'package:provider/provider.dart';
 
 import 'view/event/event_view.dart';
 
@@ -34,9 +34,6 @@ void main() async {
       create: (context) => SelectedEventProvider(),
     ),
     ChangeNotifierProvider(
-      create: (context) => PlayerProvider(),
-    ),
-    ChangeNotifierProvider(
       create: (context) => TeamProvider(),
     ),
     ChangeNotifierProvider(
@@ -49,7 +46,10 @@ void main() async {
       create: (context) => GameProvider(),
     ),
     ChangeNotifierProvider(
-      create: (context) => DuelProvider(),
+      create: (context) => EntryModelProvider(),
+    ),
+    ChangeNotifierProvider(
+      create: (context) => SelectedEntryProvider(),
     ),
   ], child: const MyApp()));
 }
