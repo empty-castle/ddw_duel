@@ -1,7 +1,6 @@
 import 'package:ddw_duel/provider/selected_event_provider.dart';
-import 'package:ddw_duel/provider/team_provider.dart';
-import 'package:ddw_duel/view/manage/bracket/bracket_view.dart';
 import 'package:ddw_duel/view/manage/entry/entry_view.dart';
+import 'package:ddw_duel/view/manage/round/round_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,8 +23,7 @@ class _ManagePageState extends State<ManagePage> {
   @override
   void initState() {
     super.initState();
-    // todo
-    _selectedPage = const EntryView();
+    _selectedPage = const RoundView();
   }
 
   @override
@@ -45,7 +43,7 @@ class _ManagePageState extends State<ManagePage> {
               children: <Widget>[
                 TextButton(
                   onPressed: () {
-                    _updateBody(const BracketView());
+                    _updateBody(const RoundView());
                   },
                   child:
                       const Text("대진표", style: TextStyle(color: Colors.white)),

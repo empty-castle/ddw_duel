@@ -1,5 +1,5 @@
 import 'package:ddw_duel/provider/game_provider.dart';
-import 'package:ddw_duel/view/manage/bracket/bracket_game_component.dart';
+import 'package:ddw_duel/view/manage/round/bracket_game_component.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

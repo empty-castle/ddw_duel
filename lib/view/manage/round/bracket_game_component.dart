@@ -5,7 +5,7 @@ import 'package:ddw_duel/db/domain/player.dart';
 import 'package:ddw_duel/db/domain/team.dart';
 import 'package:ddw_duel/db/repository/player_repository.dart';
 import 'package:ddw_duel/db/repository/team_repository.dart';
-import 'package:ddw_duel/view/manage/bracket/model/duel_score.dart';
+import 'package:ddw_duel/view/manage/round/model/duel_score.dart';
 import 'package:flutter/material.dart';
 
 class BracketGameComponent extends StatefulWidget {

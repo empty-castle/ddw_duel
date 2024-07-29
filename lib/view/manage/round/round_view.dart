@@ -5,23 +5,24 @@ import 'package:ddw_duel/db/repository/duel_repository.dart';
 import 'package:ddw_duel/db/repository/event_repository.dart';
 import 'package:ddw_duel/db/repository/game_repository.dart';
 import 'package:ddw_duel/provider/game_provider.dart';
-import 'package:ddw_duel/provider/model/RankTeam.dart';
+import 'package:ddw_duel/provider/model/rank_team.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
-import 'package:ddw_duel/view/manage/bracket/bracket_component.dart';
-import 'package:ddw_duel/view/manage/bracket/team_ranking_component.dart';
+import 'package:ddw_duel/view/manage/round/team_ranking_component.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class BracketView extends StatefulWidget {
-  const BracketView({super.key});
+import 'bracket_component.dart';
+
+class RoundView extends StatefulWidget {
+  const RoundView({super.key});
 
   @override
-  State<BracketView> createState() => _BracketViewState();
+  State<RoundView> createState() => _RoundViewState();
 }
 
-class _BracketViewState extends State<BracketView> {
+class _RoundViewState extends State<RoundView> {
   final EventRepository eventRepo = EventRepository();
   final GameRepository gameRepo = GameRepository();
   final DuelRepository duelRepo = DuelRepository();
