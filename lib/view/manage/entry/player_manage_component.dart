@@ -2,7 +2,7 @@ import 'package:ddw_duel/base/snackbar_helper.dart';
 import 'package:ddw_duel/db/domain/player.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
 import 'package:ddw_duel/db/repository/player_repository.dart';
-import 'package:ddw_duel/provider/entry_model_provider.dart';
+import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/view/manage/entry/player_form_component.dart';
@@ -59,8 +59,8 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
     int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
         .selectedEvent!
         .eventId!;
-    await Provider.of<EntryModelProvider>(context, listen: false)
-        .fetchEntryModels(eventId);
+    await Provider.of<EntryProvider>(context, listen: false)
+        .fetchEntries(eventId);
 
     if (mounted) {
       Provider.of<SelectedEntryProvider>(context, listen: false).notify();

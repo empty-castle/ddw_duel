@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:ddw_duel/provider/entry_model_provider.dart';
+import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/event_provider.dart';
 import 'package:ddw_duel/provider/game_provider.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
@@ -46,7 +46,7 @@ void main() async {
       create: (context) => GameProvider(),
     ),
     ChangeNotifierProvider(
-      create: (context) => EntryModelProvider(),
+      create: (context) => EntryProvider(),
     ),
     ChangeNotifierProvider(
       create: (context) => SelectedEntryProvider(),

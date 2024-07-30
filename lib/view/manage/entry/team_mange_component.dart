@@ -1,6 +1,6 @@
 import 'package:ddw_duel/db/domain/team.dart';
 import 'package:ddw_duel/db/repository/team_repository.dart';
-import 'package:ddw_duel/provider/entry_model_provider.dart';
+import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +38,8 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
       await teamRepo.updateTeam(selectedTeam);
 
       if (mounted) {
-        await Provider.of<EntryModelProvider>(context, listen: false)
-            .fetchEntryModels(eventId);
+        await Provider.of<EntryProvider>(context, listen: false)
+            .fetchEntries(eventId);
       }
       if (mounted) {
         selectedEntryProvider.notify();

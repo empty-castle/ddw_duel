@@ -11,7 +11,7 @@ class EntryRepositoryCustom {
   final TeamRepository teamRepo = TeamRepository();
   final PlayerRepository playerRepo = PlayerRepository();
 
-  Future<List<EntryModel>> findAllEntryModel(int eventId) async {
+  Future<List<EntryModel>> findAllEntry(int eventId) async {
     List<EntryModel> results = [];
     List<Team> teams = await teamRepo.findTeams(eventId);
     for (var team in teams) {

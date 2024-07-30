@@ -24,7 +24,7 @@ class RankProvider with ChangeNotifier {
       if (i > 0 && sortedTeams[i].point < sortedTeams[i - 1].point) {
         rank = i + 1;
       }
-      rankedTeams.add(RankTeamModel(team: sortedTeams[i], rank: rank));
+      // rankedTeams.add(RankTeamModel(team: sortedTeams[i], rank: rank));
     }
 
     _rankedTeams = rankedTeams;

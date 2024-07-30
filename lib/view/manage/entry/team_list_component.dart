@@ -2,7 +2,7 @@ import 'package:ddw_duel/base/snackbar_helper.dart';
 import 'package:ddw_duel/db/domain/team.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
 import 'package:ddw_duel/db/repository/team_repository.dart';
-import 'package:ddw_duel/provider/entry_model_provider.dart';
+import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
@@ -50,7 +50,7 @@ class _TeamListComponentState extends State<TeamListComponent> {
   @override
   Widget build(BuildContext context) {
     return Expanded(child:
-        Consumer<EntryModelProvider>(builder: (context, provider, child) {
+        Consumer<EntryProvider>(builder: (context, provider, child) {
       return LayoutBuilder(
         builder: (context, constraints) {
           return Column(
@@ -77,7 +77,7 @@ class _TeamListComponentState extends State<TeamListComponent> {
                             label: Text('이름',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
                       ],
-                      rows: provider.entryModels.map((entryModel) {
+                      rows: provider.entries.map((entryModel) {
                         return DataRow(
                             selected:
                                 _selectedTeam?.teamId == entryModel.team.teamId,

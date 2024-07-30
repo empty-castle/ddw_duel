@@ -1,4 +1,4 @@
-import 'package:ddw_duel/provider/entry_model_provider.dart';
+import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/view/manage/entry/player_history_component.dart';
@@ -55,7 +55,7 @@ class _EntryViewState extends State<EntryView>
   }
 
   Future<void> _fetchData() async {
-    await Provider.of<EntryModelProvider>(context, listen: false).fetchEntryModels(
+    await Provider.of<EntryProvider>(context, listen: false).fetchEntries(
         Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!.eventId!
     );
     if (mounted) {
