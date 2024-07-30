@@ -1,8 +1,8 @@
 import 'package:ddw_duel/db/domain/team.dart';
 
-class RankTeam {
+class RankTeamModel {
   final Team team;
   final int rank;
 
-  RankTeam({required this.team, required this.rank});
+  RankTeamModel({required this.team, required this.rank});
 }

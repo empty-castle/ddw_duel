@@ -1,12 +1,12 @@
 import 'package:ddw_duel/db/domain/team.dart';
-import 'package:ddw_duel/provider/model/rank_team.dart';
+import 'package:ddw_duel/db/model/rank_team_model.dart';
 import 'package:flutter/cupertino.dart';
 
 class RankProvider with ChangeNotifier {
-  List<RankTeam> _rankedTeams = [];
+  List<RankTeamModel> _rankedTeams = [];
   int _round = 0;
 
-  List<RankTeam> get rankedTeams => _rankedTeams;
+  List<RankTeamModel> get rankedTeams => _rankedTeams;
   int get round => _round;
 
   void makeRankedTeams(List<Team> teams, int round) {
@@ -18,13 +18,13 @@ class RankProvider with ChangeNotifier {
     List<Team> sortedTeams = List.from(teams)
       ..sort((a, b) => b.point.compareTo(a.point));
 
-    List<RankTeam> rankedTeams = [];
+    List<RankTeamModel> rankedTeams = [];
     int rank = 1;
     for (int i = 0; i < sortedTeams.length; i++) {
       if (i > 0 && sortedTeams[i].point < sortedTeams[i - 1].point) {
         rank = i + 1;
       }
-      rankedTeams.add(RankTeam(team: sortedTeams[i], rank: rank));
+      rankedTeams.add(RankTeamModel(team: sortedTeams[i], rank: rank));
     }
 
     _rankedTeams = rankedTeams;

@@ -5,7 +5,7 @@ import 'package:ddw_duel/db/repository/duel_repository.dart';
 import 'package:ddw_duel/db/repository/event_repository.dart';
 import 'package:ddw_duel/db/repository/game_repository.dart';
 import 'package:ddw_duel/provider/game_provider.dart';
-import 'package:ddw_duel/provider/model/rank_team.dart';
+import 'package:ddw_duel/db/model/rank_team_model.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
 import 'package:ddw_duel/provider/team_provider.dart';
@@ -41,7 +41,7 @@ class _RoundViewState extends State<RoundView> {
   }
 
   void _createBracket(Event selectedEvent) {
-    List<RankTeam> rankedTeams =
+    List<RankTeamModel> rankedTeams =
         Provider.of<RankProvider>(context, listen: false).rankedTeams;
     List<Game> games = [];
     for (int i = 0; i < rankedTeams.length; i += 2) {
