@@ -1,5 +1,7 @@
 import 'package:ddw_duel/db/domain/team.dart';
-import 'package:ddw_duel/provider/rank_provider.dart';
+import 'package:ddw_duel/db/model/entry_model.dart';
+import 'package:ddw_duel/provider/round_provider.dart';
+import 'package:ddw_duel/view/manage/round/model/rank_team_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,15 +13,37 @@ class TeamRankingComponent extends StatefulWidget {
 }
 
 class _TeamRankingComponentState extends State<TeamRankingComponent> {
+  List<RankTeamModel> _makeRankedTeams(Map<int, EntryModel> entryMap) {
+    List<RankTeamModel> rankedTeams = [];
+
+    List<EntryModel> sortedEntries = entryMap.values.toList()
+      ..sort((a, b) => b.team.point.compareTo(a.team.point));
+
+    int rank = 1;
+    for (int i = 0; i < sortedEntries.length; i++) {
+      if (i > 0 &&
+          sortedEntries[i].team.point < sortedEntries[i - 1].team.point) {
+        rank = i + 1;
+      }
+      rankedTeams.add(RankTeamModel(
+        team: sortedEntries[i].team,
+        rank: rank,
+      ));
+    }
+
+    return rankedTeams;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<RankProvider>(
-      builder: (context, rankProvider, child) {
+    return Consumer<RoundProvider>(
+      builder: (context, provider, child) {
+        List<RankTeamModel> rankedTeams = _makeRankedTeams(provider.round!.entryMap);
         return ListView.builder(
-          itemCount: rankProvider.rankedTeams.length,
+          itemCount: rankedTeams.length,
           itemBuilder: (context, index) {
-            final team = rankProvider.rankedTeams[index].team;
-            final rank = rankProvider.rankedTeams[index].rank;
+            final team = rankedTeams[index].team;
+            final rank = rankedTeams[index].rank;
             return teamContainer(team, rank);
           },
         );

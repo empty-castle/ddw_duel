@@ -5,10 +5,10 @@ import 'package:ddw_duel/db/repository/duel_repository.dart';
 import 'package:ddw_duel/db/repository/event_repository.dart';
 import 'package:ddw_duel/db/repository/game_repository.dart';
 import 'package:ddw_duel/provider/game_provider.dart';
-import 'package:ddw_duel/db/model/rank_team_model.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
+import 'package:ddw_duel/provider/round_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
-import 'package:ddw_duel/provider/team_provider.dart';
+import 'package:ddw_duel/view/manage/round/model/rank_team_model.dart';
 import 'package:ddw_duel/view/manage/round/team_ranking_component.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,8 +27,14 @@ class _RoundViewState extends State<RoundView> {
   final GameRepository gameRepo = GameRepository();
   final DuelRepository duelRepo = DuelRepository();
 
+  int? _currentRound;
+
+  late Future<void> _future;
+
   void _onPressedNewRound() {
-    Event selectedEvent = Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!;
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
     _createNewRound(selectedEvent);
     _createBracket(selectedEvent);
   }
@@ -61,74 +67,90 @@ class _RoundViewState extends State<RoundView> {
     Provider.of<GameProvider>(context, listen: false).setGames(games);
   }
 
+  Future<void> _fetchData() async {
+    Event event = Provider.of<SelectedEventProvider>(context).selectedEvent!;
+    _currentRound ??= event.currentRound;
+    await Provider.of<RoundProvider>(context, listen: false)
+        .fetchRound(event.eventId!, _currentRound!);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-            flex: 3,
-            child: Column(
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(color: Colors.white24, width: 1))),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Consumer<SelectedEventProvider>(
-                              builder: (context, provider, child) {
-                                List<Widget> roundButtons =
-                                    _makeRoundButtons(provider);
-                                return Row(
-                                  children: roundButtons,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Row(
-                            children: [
-                              ElevatedButton(
-                                onPressed: _onPressedNewRound,
-                                child: const Text(
-                                  '라운드 생성',
+    return FutureBuilder(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Row(
+          children: [
+            Expanded(
+                flex: 3,
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                          border: Border(
+                              bottom:
+                                  BorderSide(color: Colors.white24, width: 1))),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Consumer<SelectedEventProvider>(
+                                  builder: (context, provider, child) {
+                                    List<Widget> roundButtons =
+                                        _makeRoundButtons(provider);
+                                    return Row(
+                                      children: roundButtons,
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: _onPressedNewRound,
+                                    child: const Text(
+                                      '라운드 생성',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                const Expanded(
-                  child: Padding(
+                    const Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: BracketComponent(),
+                      ),
+                    ),
+                  ],
+                )),
+            Expanded(
+                flex: 1,
+                child: Container(
+                  decoration: const BoxDecoration(
+                      border: Border(
+                          left: BorderSide(color: Colors.white24, width: 1))),
+                  child: const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: BracketComponent(),
+                    child: TeamRankingComponent(),
                   ),
-                ),
-              ],
-            )),
-        Expanded(
-            flex: 1,
-            child: Container(
-              decoration: const BoxDecoration(
-                  border: Border(
-                      left: BorderSide(color: Colors.white24, width: 1))),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: TeamRankingComponent(),
-              ),
-            ))
-      ],
+                ))
+          ],
+        );
+      },
     );
   }
 
@@ -157,10 +179,6 @@ class _RoundViewState extends State<RoundView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    List<Team> teams = Provider.of<TeamProvider>(context).teams;
-    Provider.of<RankProvider>(context, listen: false).makeRankedTeams(teams, 0);
-
-    Event selectedEvent = Provider.of<SelectedEventProvider>(context, listen: false).selectedEvent!;
-    Provider.of<GameProvider>(context, listen: false).fetchGames(selectedEvent);
+    _future = _fetchData();
   }
 }

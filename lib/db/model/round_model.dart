@@ -1,9 +1,9 @@
+import 'package:ddw_duel/db/model/entry_model.dart';
 import 'package:ddw_duel/db/model/game_model.dart';
-import 'package:ddw_duel/db/model/rank_team_model.dart';
 
 class RoundModel {
-  final List<RankTeamModel> rankedTeams;
-  final List<GameModel> games;
+  final Map<int, EntryModel> entryMap;
+  final List<GameModel> gameModels;
 
-  RoundModel({required this.games, required this.rankedTeams});
+  RoundModel({required this.gameModels, required this.entryMap});
 }

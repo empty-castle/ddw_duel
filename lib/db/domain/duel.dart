@@ -3,13 +3,13 @@ import 'package:ddw_duel/db/table_abstract.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class Duel implements TableAbstract {
-  final int? duelId;
+  int? duelId;
   final int gameId;
   final int position;
   final int player1Id;
-  final double player1Point;
+  double player1Point;
   final int player2Id;
-  final double player2Point;
+  double player2Point;
 
   Duel(
       {this.duelId,

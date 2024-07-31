@@ -1,3 +1,4 @@
+import 'package:ddw_duel/base/player_helper.dart';
 import 'package:ddw_duel/base/snackbar_helper.dart';
 import 'package:ddw_duel/db/domain/player.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
@@ -40,7 +41,7 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
           Provider.of<SelectedEntryProvider>(context, listen: false)
               .selectedEntryModel!;
 
-      Player? playerA = _getPlayerByPosition(entryModel.players, position);
+      Player? playerA = PlayerHelper.getPlayerByPosition(entryModel.players, position);
       if (playerA == null) {
         Player player = Player(
           name: nameController.text,
@@ -70,15 +71,6 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
 
     _playerAFormKey.currentState!.reset();
     _playerBFormKey.currentState!.reset();
-  }
-
-  Player? _getPlayerByPosition(List<Player> players, int position) {
-    for (Player player in players) {
-      if (player.position == position) {
-        return player;
-      }
-    }
-    return null;
   }
 
   @override
@@ -113,7 +105,7 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
                         position: 1,
                         playerNameController: _playerANameController,
                         formKey: _playerAFormKey,
-                        player: _getPlayerByPosition(players, 1),
+                        player: PlayerHelper.getPlayerByPosition(players, 1),
                       )
                     ],
                   ),
@@ -134,7 +126,7 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
                         position: 2,
                         playerNameController: _playerBNameController,
                         formKey: _playerBFormKey,
-                        player: _getPlayerByPosition(players, 2),
+                        player: PlayerHelper.getPlayerByPosition(players, 2),
                       )
                     ],
                   ),

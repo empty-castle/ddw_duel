@@ -20,4 +20,14 @@ class EntryRepositoryCustom {
     }
     return results;
   }
+
+  Future<Map<int, EntryModel>> findAllEntryMap(int eventId) async {
+    Map<int, EntryModel> results = {};
+    List<Team> teams = await teamRepo.findTeams(eventId);
+    for (var team in teams) {
+      List<Player> players = await playerRepo.findPlayers(team.teamId!);
+      results[team.teamId!] = EntryModel(team: team, players: players);
+    }
+    return results;
+  }
 }

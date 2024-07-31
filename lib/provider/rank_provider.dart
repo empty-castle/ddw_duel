@@ -1,5 +1,5 @@
 import 'package:ddw_duel/db/domain/team.dart';
-import 'package:ddw_duel/db/model/rank_team_model.dart';
+import 'package:ddw_duel/view/manage/round/model/rank_team_model.dart';
 import 'package:flutter/cupertino.dart';
 
 class RankProvider with ChangeNotifier {
