@@ -7,8 +7,9 @@ class Event implements TableAbstract {
   final String name;
   final String? description;
   int currentRound;
+  int endRound;
 
-  Event({this.eventId, required this.name, this.description, this.currentRound = 0});
+  Event({this.eventId, required this.name, this.description, this.currentRound = 0, this.endRound = 0});
 
   @override
   Map<String, dynamic> toMap() {
@@ -16,6 +17,7 @@ class Event implements TableAbstract {
       EventEnum.name.label: name,
       EventEnum.description.label: description,
       EventEnum.currentRound.label: currentRound,
+      EventEnum.endRound.label: endRound,
     };
   }
 
@@ -25,7 +27,8 @@ class Event implements TableAbstract {
         ${EventEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${EventEnum.name.label} TEXT,
         ${EventEnum.description.label} TEXT,
-        ${EventEnum.currentRound.label} INTEGER
+        ${EventEnum.currentRound.label} INTEGER,
+        ${EventEnum.endRound.label} INTEGER
       )
     ''');
   }

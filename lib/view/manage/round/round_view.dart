@@ -1,9 +1,14 @@
+import 'package:ddw_duel/base/snackbar_helper.dart';
 import 'package:ddw_duel/db/domain/event.dart';
 import 'package:ddw_duel/db/domain/game.dart';
 import 'package:ddw_duel/db/domain/team.dart';
+import 'package:ddw_duel/db/model/entry_model.dart';
+import 'package:ddw_duel/db/model/game_model.dart';
+import 'package:ddw_duel/db/model/round_model.dart';
 import 'package:ddw_duel/db/repository/duel_repository.dart';
 import 'package:ddw_duel/db/repository/event_repository.dart';
 import 'package:ddw_duel/db/repository/game_repository.dart';
+import 'package:ddw_duel/db/repository/team_repository.dart';
 import 'package:ddw_duel/provider/game_provider.dart';
 import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:ddw_duel/provider/round_provider.dart';
@@ -26,10 +31,70 @@ class _RoundViewState extends State<RoundView> {
   final EventRepository eventRepo = EventRepository();
   final GameRepository gameRepo = GameRepository();
   final DuelRepository duelRepo = DuelRepository();
+  final TeamRepository teamRepo = TeamRepository();
 
   int? _currentRound;
 
   late Future<void> _future;
+
+  void _onPressedScoring() {
+    RoundModel roundModel =
+        Provider.of<RoundProvider>(context, listen: false).round!;
+    if (!_validateDuelsInGameModels(roundModel.gameModels)) {
+      SnackbarHelper.showErrorSnackbar(context, '모든 경기의 결과를 입력해주세요.');
+      return;
+    }
+    aggregatePoints(roundModel.entryMap, roundModel.gameModels);
+
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
+    selectedEvent.endRound = _currentRound!;
+    eventRepo.saveEvent(selectedEvent);
+
+    setState(() {
+      int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
+          .selectedEvent!
+          .eventId!;
+      _future = _fetchData(eventId, _currentRound!);
+    });
+  }
+
+  void aggregatePoints(
+      Map<int, EntryModel> entryMap, List<GameModel> gameModels) {
+    for (var gameModel in gameModels) {
+      double team1TotalPoints = 0.0;
+      double team2TotalPoints = 0.0;
+
+      for (var duel in gameModel.duels) {
+        team1TotalPoints += duel.player1Point;
+        team2TotalPoints += duel.player2Point;
+      }
+
+      gameModel.game.team1Point = team1TotalPoints;
+      gameModel.game.team2Point = team2TotalPoints;
+
+      gameRepo.saveGame(gameModel.game);
+
+      Team team1 = entryMap[gameModel.game.team1Id]!.team;
+      Team team2 = entryMap[gameModel.game.team2Id]!.team;
+
+      team1.point = team1.point + team1TotalPoints;
+      team2.point = team2.point + team2TotalPoints;
+
+      teamRepo.saveTeam(team1);
+      teamRepo.saveTeam(team2);
+    }
+  }
+
+  bool _validateDuelsInGameModels(List<GameModel> gameModels) {
+    for (var gameModel in gameModels) {
+      if (gameModel.duels.length != 2) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   void _onPressedNewRound() {
     Event selectedEvent =
@@ -67,11 +132,9 @@ class _RoundViewState extends State<RoundView> {
     Provider.of<GameProvider>(context, listen: false).setGames(games);
   }
 
-  Future<void> _fetchData() async {
-    Event event = Provider.of<SelectedEventProvider>(context).selectedEvent!;
-    _currentRound ??= event.currentRound;
+  Future<void> _fetchData(int eventId, int currentRound) async {
     await Provider.of<RoundProvider>(context, listen: false)
-        .fetchRound(event.eventId!, _currentRound!);
+        .fetchRound(eventId, currentRound);
   }
 
   @override
@@ -116,6 +179,15 @@ class _RoundViewState extends State<RoundView> {
                               padding: const EdgeInsets.only(left: 16.0),
                               child: Row(
                                 children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: ElevatedButton(
+                                      onPressed: _onPressedScoring,
+                                      child: const Text(
+                                        '집계',
+                                      ),
+                                    ),
+                                  ),
                                   ElevatedButton(
                                     onPressed: _onPressedNewRound,
                                     child: const Text(
@@ -160,25 +232,39 @@ class _RoundViewState extends State<RoundView> {
       roundButtons.add(
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child: OutlinedButton(
-            onPressed: () {
-              // todo
-            },
-            child: Text(
-              i == provider.selectedEvent!.currentRound
-                  ? '$i라운드(진행 중)'
-                  : '$i라운드',
-            ),
-          ),
+          child: i == _currentRound
+              ? FilledButton(
+                  onPressed: () => _onPressedChangeRound(i),
+                  child: _makeRoundButtonText(i, provider.selectedEvent!),
+                )
+              : OutlinedButton(
+                  onPressed: () => _onPressedChangeRound(i),
+                  child: _makeRoundButtonText(i, provider.selectedEvent!),
+                ),
         ),
       );
     }
     return roundButtons;
   }
 
+  Text _makeRoundButtonText(int i, Event event) {
+    return Text(i <= event.endRound ? '$i라운드(완료)' : '$i라운드(진행 중)');
+  }
+
+  void _onPressedChangeRound(int round) {
+    setState(() {
+      _currentRound = round;
+      Event event = Provider.of<SelectedEventProvider>(context, listen: false)
+          .selectedEvent!;
+      _future = _fetchData(event.eventId!, round);
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _future = _fetchData();
+    Event event = Provider.of<SelectedEventProvider>(context).selectedEvent!;
+    _currentRound = event.currentRound;
+    _future = _fetchData(event.eventId!, event.currentRound);
   }
 }

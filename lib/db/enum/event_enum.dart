@@ -4,6 +4,7 @@ enum EventEnum {
   name('name'),
   description('description'),
   currentRound('currentRound'),
+  endRound('endRound')
   ;
 
   final String label;

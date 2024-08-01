@@ -6,7 +6,7 @@ class Team implements TableAbstract {
   final int? teamId;
   String name;
   final int eventId;
-  final double point;
+  double point;
 
   Team(
       {this.teamId,

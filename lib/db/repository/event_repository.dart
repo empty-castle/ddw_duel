@@ -7,13 +7,23 @@ import '../database_helper.dart';
 class EventRepository {
   final DatabaseHelper dbHelper = DatabaseHelper();
 
-  Future<void> saveEvent(Event event) async {
+  Future<int> saveEvent(Event event) async {
     Database db = await dbHelper.database;
-    await db.insert(
-      EventEnum.tableName.label,
-      event.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    if (event.eventId != null) {
+      await db.update(
+        EventEnum.tableName.label,
+        event.toMap(),
+        where: "${EventEnum.id.label} = ?",
+        whereArgs: [event.eventId],
+      );
+      return event.eventId!;
+    } else {
+      return await db.insert(
+        EventEnum.tableName.label,
+        event.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
   }
 
   Future<List<Event>> findEvents() async {
@@ -60,6 +70,7 @@ class EventRepository {
       name: map[EventEnum.name.label],
       description: map[EventEnum.description.label],
       currentRound: map[EventEnum.currentRound.label],
+      endRound: map[EventEnum.endRound.label]
     );
   }
 }

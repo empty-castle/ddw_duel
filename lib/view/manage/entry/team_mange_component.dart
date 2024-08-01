@@ -35,7 +35,7 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
       Team selectedTeam = selectedEntryProvider.selectedEntryModel!.team;
 
       selectedTeam.name = _teamNameController.text;
-      await teamRepo.updateTeam(selectedTeam);
+      await teamRepo.saveTeam(selectedTeam);
 
       if (mounted) {
         await Provider.of<EntryProvider>(context, listen: false)

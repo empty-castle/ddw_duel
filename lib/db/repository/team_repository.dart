@@ -9,11 +9,21 @@ class TeamRepository {
 
   Future<int> saveTeam(Team team) async {
     Database db = await dbHelper.database;
-    return await db.insert(
-      TeamEnum.tableName.label,
-      team.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    if (team.teamId != null) {
+      await db.update(
+        TeamEnum.tableName.label,
+        team.toMap(),
+        where: "${TeamEnum.id.label} = ?",
+        whereArgs: [team.teamId],
+      );
+      return team.teamId!;
+    } else {
+      return await db.insert(
+        TeamEnum.tableName.label,
+        team.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
   }
 
   Future<List<Team>> findTeams(int eventId) async {
@@ -38,16 +48,6 @@ class TeamRepository {
     } else {
       return null;
     }
-  }
-
-  Future<void> updateTeam(Team team) async {
-    Database db = await dbHelper.database;
-    await db.update(
-      TeamEnum.tableName.label,
-      team.toMap(),
-      where: "${TeamEnum.id.label} = ?",
-      whereArgs: [team.teamId],
-    );
   }
 
   Future<void> deleteTeam(int id) async {

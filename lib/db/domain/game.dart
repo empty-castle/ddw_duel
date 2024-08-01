@@ -7,14 +7,14 @@ class Game implements TableAbstract {
   final int eventId;
   final int round;
   final int team1Id;
-  final int team1Point;
+  double team1Point;
   final int team2Id;
-  final int team2Point;
+  double team2Point;
 
   Game(
       {this.gameId,
-      this.team1Point = 0,
-      this.team2Point = 0,
+      this.team1Point = 0.0,
+      this.team2Point = 0.0,
       required this.eventId,
       required this.round,
       required this.team1Id,
@@ -39,9 +39,9 @@ class Game implements TableAbstract {
         ${GameEnum.eventId.label} INTEGER,
         ${GameEnum.round.label} INTEGER,
         ${GameEnum.team1Id.label} INTEGER,
-        ${GameEnum.team1Point.label} INTEGER,
+        ${GameEnum.team1Point.label} REAL,
         ${GameEnum.team2Id.label} INTEGER,
-        ${GameEnum.team2Point.label} INTEGER
+        ${GameEnum.team2Point.label} REAL
       )
     ''');
   }
