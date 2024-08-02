@@ -7,13 +7,23 @@ import '../database_helper.dart';
 class PlayerRepository {
   final DatabaseHelper dbHelper = DatabaseHelper();
 
-  Future<void> savePlayer(Player player) async {
+  Future<int> savePlayer(Player player) async {
     Database db = await dbHelper.database;
-    await db.insert(
-      PlayerEnum.tableName.label,
-      player.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    if (player.playerId != null) {
+      await db.update(
+        PlayerEnum.tableName.label,
+        player.toMap(),
+        where: "${PlayerEnum.id.label} = ?",
+        whereArgs: [player.playerId],
+      );
+      return player.playerId!;
+    } else {
+      return await db.insert(
+        PlayerEnum.tableName.label,
+        player.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
   }
 
   Future<List<Player>> findPlayers(int teamId) async {
@@ -26,16 +36,6 @@ class PlayerRepository {
     return List.generate(maps.length, (i) {
       return _makePlayer(maps[i]);
     });
-  }
-
-  Future<void> updatePlayer(Player player) async {
-    Database db = await dbHelper.database;
-    await db.update(
-      PlayerEnum.tableName.label,
-      player.toMap(),
-      where: "${PlayerEnum.id.label} = ?",
-      whereArgs: [player.playerId],
-    );
   }
 
   Future<void> deletePlayer(int id) async {

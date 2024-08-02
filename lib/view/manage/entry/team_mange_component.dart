@@ -16,7 +16,6 @@ class TeamMangeComponent extends StatefulWidget {
 }
 
 class _TeamMangeComponentState extends State<TeamMangeComponent> {
-  // todo 저장 이후에 팀 이름이 안 바뀜
   final TeamRepository teamRepo = TeamRepository();
 
   final TextEditingController _teamNameController = TextEditingController();
@@ -37,15 +36,17 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
       selectedTeam.name = _teamNameController.text;
       await teamRepo.saveTeam(selectedTeam);
 
-      if (mounted) {
-        await Provider.of<EntryProvider>(context, listen: false)
-            .fetchEntries(eventId);
-      }
-      if (mounted) {
-        selectedEntryProvider.notify();
-        SnackbarHelper.showInfoSnackbar(
-            context, "${_teamNameController.text} 저장이 완료되었습니다.");
-      }
+      if (!mounted) return;
+
+      await Provider.of<EntryProvider>(context, listen: false)
+          .fetchEntries(eventId);
+
+      if (!mounted) return;
+
+      selectedEntryProvider.notify();
+      SnackbarHelper.showInfoSnackbar(
+          context, "${_teamNameController.text} 저장이 완료되었습니다.");
+
       _formKey.currentState!.reset();
     }
   }

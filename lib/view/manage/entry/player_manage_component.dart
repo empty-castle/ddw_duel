@@ -2,6 +2,7 @@ import 'package:ddw_duel/base/player_helper.dart';
 import 'package:ddw_duel/base/snackbar_helper.dart';
 import 'package:ddw_duel/db/domain/player.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
+import 'package:ddw_duel/db/repository/entry_repository_custom.dart';
 import 'package:ddw_duel/db/repository/player_repository.dart';
 import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
@@ -18,6 +19,7 @@ class PlayerManageComponent extends StatefulWidget {
 }
 
 class _PlayerManageComponentState extends State<PlayerManageComponent> {
+  final EntryRepositoryCustom entryRepositoryCustom = EntryRepositoryCustom();
   final PlayerRepository playerRepo = PlayerRepository();
 
   final _playerAFormKey = GlobalKey<FormState>();
@@ -41,8 +43,9 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
           Provider.of<SelectedEntryProvider>(context, listen: false)
               .selectedEntryModel!;
 
-      Player? playerA = PlayerHelper.getPlayerByPosition(entryModel.players, position);
-      if (playerA == null) {
+      Player? player =
+          PlayerHelper.getPlayerByPosition(entryModel.players, position);
+      if (player == null) {
         Player player = Player(
           name: nameController.text,
           teamId: entryModel.team.teamId!,
@@ -50,8 +53,8 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
         );
         await playerRepo.savePlayer(player);
       } else {
-        playerA.name = nameController.text;
-        await playerRepo.updatePlayer(playerA);
+        player.name = nameController.text;
+        await playerRepo.savePlayer(player);
       }
     }
   }
@@ -63,11 +66,19 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
     await Provider.of<EntryProvider>(context, listen: false)
         .fetchEntries(eventId);
 
-    if (mounted) {
-      Provider.of<SelectedEntryProvider>(context, listen: false).notify();
-      SnackbarHelper.showInfoSnackbar(context,
-          "${_playerANameController.text}, ${_playerBNameController.text} 선수 저장이 완료되었습니다.");
-    }
+    if (!mounted) return;
+    int teamId = Provider.of<SelectedEntryProvider>(context, listen: false)
+        .selectedEntryModel!
+        .team
+        .teamId!;
+    EntryModel? entryModel = await entryRepositoryCustom.findEntry(teamId);
+
+    if (!mounted) return;
+    Provider.of<SelectedEntryProvider>(context, listen: false)
+        .setSelectedEntry(entryModel!);
+
+    SnackbarHelper.showInfoSnackbar(context,
+        "${_playerANameController.text}, ${_playerBNameController.text} 선수 저장이 완료되었습니다.");
 
     _playerAFormKey.currentState!.reset();
     _playerBFormKey.currentState!.reset();

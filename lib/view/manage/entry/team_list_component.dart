@@ -41,16 +41,18 @@ class _TeamListComponentState extends State<TeamListComponent> {
     );
     teamRepo.saveTeam(team);
 
-    if (mounted) {
-      Provider.of<TeamProvider>(context, listen: false).fetchTeams(eventId);
-      SnackbarHelper.showInfoSnackbar(context, "${team.name} 팀 저장이 완료되었습니다.");
-    }
+    if (!mounted) return;
+    await Provider.of<EntryProvider>(context, listen: false)
+        .fetchEntries(eventId);
+
+    if (!mounted) return;
+    SnackbarHelper.showInfoSnackbar(context, "${team.name} 팀 저장이 완료되었습니다.");
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(child:
-        Consumer<EntryProvider>(builder: (context, provider, child) {
+    return Expanded(
+        child: Consumer<EntryProvider>(builder: (context, provider, child) {
       return LayoutBuilder(
         builder: (context, constraints) {
           return Column(

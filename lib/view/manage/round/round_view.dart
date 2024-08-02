@@ -97,11 +97,29 @@ class _RoundViewState extends State<RoundView> {
   }
 
   void _onPressedNewRound() {
+    List<String> incompleteTeams = _checkIncompleteTeams();
+    if (incompleteTeams.isNotEmpty) {
+      String message = '[${incompleteTeams.join(', ')}] 팀 선수 입력이 완료되지 않았습니다.';
+      SnackbarHelper.showErrorSnackbar(context, message);
+      return;
+    }
+
     Event selectedEvent =
         Provider.of<SelectedEventProvider>(context, listen: false)
             .selectedEvent!;
     _createNewRound(selectedEvent);
     _createBracket(selectedEvent);
+  }
+
+  List<String> _checkIncompleteTeams() {
+    List<String> results = [];
+    Map<int, EntryModel> entryMap = Provider.of<RoundProvider>(context, listen: false).round!.entryMap;
+    for (var entry in entryMap.values) {
+      if (entry.players.length != 2) {
+        results.add(entry.team.name);
+      }
+    }
+    return results;
   }
 
   void _createNewRound(Event selectedEvent) {

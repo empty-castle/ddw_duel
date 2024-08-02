@@ -30,4 +30,13 @@ class EntryRepositoryCustom {
     }
     return results;
   }
+
+  Future<EntryModel?> findEntry(int teamId) async {
+    Team? team = await teamRepo.findTeam(teamId);
+    if (team == null) {
+      return null;
+    }
+    List<Player> players = await playerRepo.findPlayers(teamId);
+    return EntryModel(team: team, players: players);
+  }
 }

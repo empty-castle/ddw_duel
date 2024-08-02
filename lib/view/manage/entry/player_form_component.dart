@@ -63,6 +63,8 @@ class _PlayerFormComponentState extends State<PlayerFormComponent> {
   void _updatePlayerControllers() {
     if (widget.player != null) {
       widget.playerNameController.text = widget.player!.name;
+    } else {
+      widget.playerNameController.text = '';
     }
   }
 }
