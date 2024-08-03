@@ -38,7 +38,8 @@ class _TeamRankingComponentState extends State<TeamRankingComponent> {
   Widget build(BuildContext context) {
     return Consumer<RoundProvider>(
       builder: (context, provider, child) {
-        List<RankTeamModel> rankedTeams = _makeRankedTeams(provider.round!.entryMap);
+        List<RankTeamModel> rankedTeams =
+            _makeRankedTeams(provider.round!.entryMap);
         return ListView.builder(
           itemCount: rankedTeams.length,
           itemBuilder: (context, index) {

@@ -37,6 +37,17 @@ class GameRepository {
     }
   }
 
+  Future<List<Game>> findGames(int eventId) async {
+    Database db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+        GameEnum.tableName.label,
+        where: '${GameEnum.eventId.label} = ?',
+        whereArgs: [eventId]);
+    return List.generate(maps.length, (i) {
+      return _makeGame(maps[i]);
+    });
+  }
+
   Future<List<Game>> findCurrentRoundGames(
       int eventId, int currentRound) async {
     Database db = await dbHelper.database;

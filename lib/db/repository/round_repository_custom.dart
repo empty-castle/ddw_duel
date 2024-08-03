@@ -1,4 +1,3 @@
-import 'package:ddw_duel/db/database_helper.dart';
 import 'package:ddw_duel/db/domain/duel.dart';
 import 'package:ddw_duel/db/domain/game.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
@@ -9,7 +8,6 @@ import 'package:ddw_duel/db/repository/entry_repository_custom.dart';
 import 'package:ddw_duel/db/repository/game_repository.dart';
 
 class RoundRepositoryCustom {
-  final DatabaseHelper dbHelper = DatabaseHelper();
 
   final EntryRepositoryCustom entryRepositoryCustom = EntryRepositoryCustom();
   final GameRepository gameRepo = GameRepository();
@@ -33,5 +31,24 @@ class RoundRepositoryCustom {
       result.add(GameModel(duels: duels, game: game));
     }
     return result;
+  }
+
+  Future<Map<int, Set<int>>> findTeamMatchHistory(int eventId) async {
+    List<Game> games = await gameRepo.findGames(eventId);
+    Map<int, Set<int>> teamHistoryMap = {};
+
+    for (Game game in games) {
+      if (!teamHistoryMap.containsKey(game.team1Id)) {
+        teamHistoryMap[game.team1Id] = {};
+      }
+      teamHistoryMap[game.team1Id]!.add(game.team2Id);
+
+      if (!teamHistoryMap.containsKey(game.team2Id)) {
+        teamHistoryMap[game.team2Id] = {};
+      }
+      teamHistoryMap[game.team2Id]!.add(game.team1Id);
+    }
+
+    return teamHistoryMap;
   }
 }

@@ -34,6 +34,7 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
     await _afterSavePlayer();
   }
 
+  // todo 선수가 없을떄 저장을 여러번 반복해서 누르면 에러
   Future<void> _savePlayer(GlobalKey<FormState> formKey,
       TextEditingController nameController, int position) async {
     if (formKey.currentState!.validate()) {
