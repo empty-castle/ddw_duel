@@ -1,4 +1,5 @@
 import 'package:ddw_duel/db/domain/duel.dart';
+import 'package:ddw_duel/db/domain/type/duel_status.dart';
 import 'package:ddw_duel/db/enum/duel_enum.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -52,6 +53,7 @@ class DuelRepository {
       duelId: map[DuelEnum.id.label],
       gameId: map[DuelEnum.gameId.label],
       position: map[DuelEnum.position.label],
+      status: DuelStatus.values.byName(map[DuelEnum.status.label]),
       player1Id: map[DuelEnum.player1Id.label],
       player1Point: map[DuelEnum.player1Point.label],
       player2Id: map[DuelEnum.player2Id.label],

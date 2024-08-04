@@ -3,6 +3,7 @@ enum DuelEnum {
   id('duelId'),
   gameId('gameId'),
   position('position'),
+  status('status'),
   player1Id('player1Id'),
   player1Point('player1Point'),
   player2Id('player2Id'),

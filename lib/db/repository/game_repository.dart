@@ -26,17 +26,6 @@ class GameRepository {
     }
   }
 
-  Future<void> saveAllGame(List<Game> games) async {
-    Database db = await dbHelper.database;
-    for (var game in games) {
-      await db.insert(
-        GameEnum.tableName.label,
-        game.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-  }
-
   Future<List<Game>> findGames(int eventId) async {
     Database db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(

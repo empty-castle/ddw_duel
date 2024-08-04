@@ -7,15 +7,12 @@ import 'package:ddw_duel/db/domain/team.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
 import 'package:ddw_duel/db/model/game_model.dart';
 import 'package:ddw_duel/db/model/round_model.dart';
-import 'package:ddw_duel/db/repository/duel_repository.dart';
 import 'package:ddw_duel/db/repository/event_repository.dart';
 import 'package:ddw_duel/db/repository/game_repository.dart';
 import 'package:ddw_duel/db/repository/round_repository_custom.dart';
 import 'package:ddw_duel/db/repository/team_repository.dart';
-import 'package:ddw_duel/provider/game_provider.dart';
 import 'package:ddw_duel/provider/round_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
-import 'package:ddw_duel/view/manage/round/model/rank_team_model.dart';
 import 'package:ddw_duel/view/manage/round/team_ranking_component.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,14 +30,22 @@ class _RoundViewState extends State<RoundView> {
   final RoundRepositoryCustom roundRepositoryCustom = RoundRepositoryCustom();
   final EventRepository eventRepo = EventRepository();
   final GameRepository gameRepo = GameRepository();
-  final DuelRepository duelRepo = DuelRepository();
   final TeamRepository teamRepo = TeamRepository();
 
   int? _selectedRound;
 
   late Future<void> _future;
 
-  void _onPressedScoring() {
+  void _onPressedScoring() async {
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
+
+    await Provider.of<RoundProvider>(context, listen: false)
+        .fetchRound(selectedEvent.eventId!, _selectedRound!);
+
+    if (!mounted) return;
+
     RoundModel roundModel =
         Provider.of<RoundProvider>(context, listen: false).round!;
     if (!_validateDuelsInGameModels(roundModel.gameModels)) {
@@ -49,9 +54,6 @@ class _RoundViewState extends State<RoundView> {
     }
     aggregatePoints(roundModel.entryMap, roundModel.gameModels);
 
-    Event selectedEvent =
-        Provider.of<SelectedEventProvider>(context, listen: false)
-            .selectedEvent!;
     selectedEvent.endRound = _selectedRound!;
     eventRepo.saveEvent(selectedEvent);
 
@@ -79,14 +81,18 @@ class _RoundViewState extends State<RoundView> {
 
       gameRepo.saveGame(gameModel.game);
 
-      Team team1 = entryMap[gameModel.game.team1Id]!.team;
-      Team team2 = entryMap[gameModel.game.team2Id]!.team;
+      Team? team1 = entryMap[gameModel.game.team1Id]?.team;
+      Team? team2 = entryMap[gameModel.game.team2Id]?.team;
 
-      team1.point = team1.point + team1TotalPoints;
-      team2.point = team2.point + team2TotalPoints;
+      if (team1 != null) {
+        team1.point = team1.point + team1TotalPoints;
+        teamRepo.saveTeam(team1);
+      }
 
-      teamRepo.saveTeam(team1);
-      teamRepo.saveTeam(team2);
+      if (team2 != null) {
+        team2.point = team2.point + team2TotalPoints;
+        teamRepo.saveTeam(team2);
+      }
     }
   }
 
@@ -115,8 +121,12 @@ class _RoundViewState extends State<RoundView> {
       return;
     }
 
-    // _createNewRound(selectedEvent);
+    _createNewRound(selectedEvent);
     _createBracket(selectedEvent);
+
+    setState(() {
+      _future = _fetchData(selectedEvent.eventId!, selectedEvent.currentRound);
+    });
   }
 
   List<String> _checkIncompleteTeams() {
@@ -138,17 +148,12 @@ class _RoundViewState extends State<RoundView> {
         .setSelectedEvent(selectedEvent);
   }
 
-  /*
-  * 1. 높은 랭크부터 리스트 뽑아서 랜덤 매칭
-  * 2. 리스트가 홀수라서 사람이 남으면 아래 랭크 리스트에서 뽑아서 랜덤 매칭
-  * 3. 랜덤 매칭은 이미 한번 했었던 매칭이면 PASS
-  * 4. 부전승은 가장 아래에서 뽑는다 = 가장 마지막에 남은 팀이 부전승
-  * */
   void _createBracket(Event selectedEvent) async {
     Map<int, EntryModel> entryMap =
         Provider.of<RoundProvider>(context, listen: false).round!.entryMap;
     List<List<Team>> rankedTeamsList = _makeRankedTeamsList(entryMap);
-    Map<int, Set<int>> teamMatchHistory = await roundRepositoryCustom.findTeamMatchHistory(selectedEvent.eventId!);
+    Map<int, Set<int>> teamMatchHistory = await roundRepositoryCustom
+        .findTeamMatchHistory(selectedEvent.eventId!);
 
     Queue<Team> remainTeams = Queue();
 
@@ -158,23 +163,10 @@ class _RoundViewState extends State<RoundView> {
 
       while (remainTeams.isNotEmpty) {
         Team team1 = remainTeams.removeFirst();
-        Team? team2;
-
-        for (int i = 0; i < shuffledTeams.length; i++) {
-          Set<int>? matchHistory = teamMatchHistory[team1.teamId];
-          if (matchHistory == null || !matchHistory.contains(shuffledTeams[i].teamId)) {
-            team2 = shuffledTeams.removeAt(i);
-            break;
-          }
-        }
+        Team? team2 = _findMatchingTeam(team1, shuffledTeams, teamMatchHistory);
 
         if (team2 != null) {
-          games.add(Game(
-            eventId: selectedEvent.eventId!,
-            round: selectedEvent.currentRound,
-            team1Id: team1.teamId!,
-            team2Id: team2.teamId!,
-          ));
+          games.add(_makeGame(selectedEvent, team1, team2));
         } else {
           remainTeams.add(team1);
           break;
@@ -183,23 +175,10 @@ class _RoundViewState extends State<RoundView> {
 
       while (shuffledTeams.length > 1) {
         Team team1 = shuffledTeams.removeLast();
-        Team? team2;
-
-        for (int i = 0; i < shuffledTeams.length; i++) {
-          Set<int>? matchHistory = teamMatchHistory[team1.teamId];
-          if (matchHistory == null || !matchHistory.contains(shuffledTeams[i].teamId)) {
-            team2 = shuffledTeams.removeAt(i);
-            break;
-          }
-        }
+        Team? team2 = _findMatchingTeam(team1, shuffledTeams, teamMatchHistory);
 
         if (team2 != null) {
-          games.add(Game(
-            eventId: selectedEvent.eventId!,
-            round: selectedEvent.currentRound,
-            team1Id: team1.teamId!,
-            team2Id: team2.teamId!,
-          ));
+          games.add(_makeGame(selectedEvent, team1, team2));
         } else {
           remainTeams.add(team1);
           break;
@@ -213,15 +192,33 @@ class _RoundViewState extends State<RoundView> {
 
     if (remainTeams.isNotEmpty) {
       Team team = remainTeams.removeFirst();
-      games.add(Game(
-        eventId: selectedEvent.eventId!,
-        round: selectedEvent.currentRound,
-        team1Id: team.teamId!,
-        team2Id: 0,
-      ));
+      games.add(_makeGame(selectedEvent, team, null));
     }
 
-    print(games);
+    for (var game in games) {
+      gameRepo.saveGame(game);
+    }
+  }
+
+  Game _makeGame(Event selectedEvent, Team team1, Team? team2) {
+    return Game(
+      eventId: selectedEvent.eventId!,
+      round: selectedEvent.currentRound,
+      team1Id: team1.teamId!,
+      team2Id: team2?.teamId! ?? 0,
+    );
+  }
+
+  Team? _findMatchingTeam(
+      Team team, List<Team> candidates, Map<int, Set<int>> teamMatchHistory) {
+    for (int i = 0; i < candidates.length; i++) {
+      Set<int>? matchHistory = teamMatchHistory[team.teamId];
+      if (matchHistory == null ||
+          !matchHistory.contains(candidates[i].teamId)) {
+        return candidates.removeAt(i);
+      }
+    }
+    return null;
   }
 
   List<List<Team>> _makeRankedTeamsList(Map<int, EntryModel> entryMap) {

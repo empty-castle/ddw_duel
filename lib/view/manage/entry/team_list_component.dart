@@ -5,7 +5,6 @@ import 'package:ddw_duel/db/repository/team_repository.dart';
 import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
-import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

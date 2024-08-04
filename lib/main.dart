@@ -2,13 +2,9 @@ import 'dart:io';
 
 import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/event_provider.dart';
-import 'package:ddw_duel/provider/game_provider.dart';
-import 'package:ddw_duel/provider/rank_provider.dart';
 import 'package:ddw_duel/provider/round_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
-import 'package:ddw_duel/provider/selected_team_provider.dart';
-import 'package:ddw_duel/provider/team_provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,18 +29,6 @@ void main() async {
     ),
     ChangeNotifierProvider(
       create: (context) => SelectedEventProvider(),
-    ),
-    ChangeNotifierProvider(
-      create: (context) => TeamProvider(),
-    ),
-    ChangeNotifierProvider(
-      create: (context) => SelectedTeamProvider(),
-    ),
-    ChangeNotifierProvider(
-      create: (context) => RankProvider(),
-    ),
-    ChangeNotifierProvider(
-      create: (context) => GameProvider(),
     ),
     ChangeNotifierProvider(
       create: (context) => EntryProvider(),

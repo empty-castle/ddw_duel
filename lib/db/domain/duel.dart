@@ -1,3 +1,4 @@
+import 'package:ddw_duel/db/domain/type/duel_status.dart';
 import 'package:ddw_duel/db/enum/duel_enum.dart';
 import 'package:ddw_duel/db/table_abstract.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -6,6 +7,7 @@ class Duel implements TableAbstract {
   int? duelId;
   final int gameId;
   final int position;
+  final DuelStatus status;
   final int player1Id;
   double player1Point;
   final int player2Id;
@@ -15,6 +17,7 @@ class Duel implements TableAbstract {
       {this.duelId,
       required this.gameId,
       required this.position,
+      required this.status,
       required this.player1Id,
       this.player1Point = 0.0,
       required this.player2Id,
@@ -25,6 +28,7 @@ class Duel implements TableAbstract {
     return {
       DuelEnum.gameId.label: gameId,
       DuelEnum.position.label: position,
+      DuelEnum.status.label: status.name,
       DuelEnum.player1Id.label: player1Id,
       DuelEnum.player1Point.label: player1Point,
       DuelEnum.player2Id.label: player2Id,
@@ -38,6 +42,7 @@ class Duel implements TableAbstract {
         ${DuelEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${DuelEnum.gameId.label} INTEGER,
         ${DuelEnum.position.label} INTEGER,
+        ${DuelEnum.status.label} TEXT,
         ${DuelEnum.player1Id.label} INTEGER,
         ${DuelEnum.player1Point.label} REAL,
         ${DuelEnum.player2Id.label} INTEGER,
