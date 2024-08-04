@@ -65,11 +65,13 @@ class MyApp extends StatelessWidget {
           filledButtonRadius: 0.0,
           elevatedButtonRadius: 0.0,
           textButtonRadius: 0.0,
+          dialogRadius: 0.0,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,
         swapLegacyOnMaterial3: true,
         fontFamily: 'Pretendard',
+
       ),
       darkTheme: FlexThemeData.dark(
         scheme: FlexScheme.materialHc,
@@ -86,6 +88,7 @@ class MyApp extends StatelessWidget {
           filledButtonRadius: 0.0,
           elevatedButtonRadius: 0.0,
           textButtonRadius: 0.0,
+          dialogRadius: 0.0,
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,

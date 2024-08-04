@@ -65,6 +65,7 @@ class _RoundViewState extends State<RoundView> {
     });
   }
 
+  // todo player 에도 점수 합산
   void aggregatePoints(
       Map<int, EntryModel> entryMap, List<GameModel> gameModels) {
     for (var gameModel in gameModels) {
@@ -248,95 +249,6 @@ class _RoundViewState extends State<RoundView> {
         .fetchRound(eventId, currentRound);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return Row(
-          children: [
-            Expanded(
-                flex: 3,
-                child: Column(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                          border: Border(
-                              bottom:
-                                  BorderSide(color: Colors.white24, width: 1))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Consumer<SelectedEventProvider>(
-                                  builder: (context, provider, child) {
-                                    List<Widget> roundButtons =
-                                        _makeRoundButtons(provider);
-                                    return Row(
-                                      children: roundButtons,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16.0),
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: ElevatedButton(
-                                      onPressed: _onPressedScoring,
-                                      child: const Text(
-                                        '집계',
-                                      ),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: _onPressedNewRound,
-                                    child: const Text(
-                                      '라운드 생성',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: BracketComponent(),
-                      ),
-                    ),
-                  ],
-                )),
-            Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: const BoxDecoration(
-                      border: Border(
-                          left: BorderSide(color: Colors.white24, width: 1))),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TeamRankingComponent(),
-                  ),
-                ))
-          ],
-        );
-      },
-    );
-  }
-
   List<Widget> _makeRoundButtons(SelectedEventProvider provider) {
     List<Widget> roundButtons = [];
     for (int i = 1; i <= provider.selectedEvent!.currentRound; i++) {
@@ -377,5 +289,100 @@ class _RoundViewState extends State<RoundView> {
     Event event = Provider.of<SelectedEventProvider>(context).selectedEvent!;
     _selectedRound = event.currentRound;
     _future = _fetchData(event.eventId!, event.currentRound);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Consumer<RoundProvider>(
+          builder: (context, provider, child) {
+            return Row(
+              children: [
+                Expanded(
+                    flex: 3,
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: const BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(
+                                      color: Colors.white24, width: 1))),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Consumer<SelectedEventProvider>(
+                                      builder: (context, provider, child) {
+                                        List<Widget> roundButtons =
+                                            _makeRoundButtons(provider);
+                                        return Row(
+                                          children: roundButtons,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 8.0),
+                                        child: ElevatedButton(
+                                          onPressed: _onPressedScoring,
+                                          child: const Text(
+                                            '집계',
+                                          ),
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: _onPressedNewRound,
+                                        child: const Text(
+                                          '라운드 생성',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: BracketComponent(),
+                          ),
+                        ),
+                      ],
+                    )),
+                Expanded(
+                    flex: 1,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                          border: Border(
+                              left:
+                                  BorderSide(color: Colors.white24, width: 1))),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: TeamRankingComponent(),
+                      ),
+                    ))
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }

@@ -61,10 +61,10 @@ class TeamRepository {
 
   Team _makeTeam(Map<String, dynamic> map) {
     return Team(
-      teamId: map[TeamEnum.id.label],
-      eventId: map[TeamEnum.eventId.label],
-      name: map[TeamEnum.name.label],
-      point: map[TeamEnum.point.label]
-    );
+        teamId: map[TeamEnum.id.label],
+        eventId: map[TeamEnum.eventId.label],
+        name: map[TeamEnum.name.label],
+        point: map[TeamEnum.point.label],
+        isForfeited: map[TeamEnum.isForfeited.label]);
   }
 }

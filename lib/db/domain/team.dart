@@ -7,12 +7,14 @@ class Team implements TableAbstract {
   String name;
   final int eventId;
   double point;
+  int isForfeited;
 
   Team(
       {this.teamId,
       required this.eventId,
       this.point = 0.0,
-      required this.name});
+      required this.name,
+      this.isForfeited = 0});
 
   @override
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class Team implements TableAbstract {
       TeamEnum.name.label: name,
       TeamEnum.eventId.label: eventId,
       TeamEnum.point.label: point,
+      TeamEnum.isForfeited.label: isForfeited
     };
   }
 
@@ -29,7 +32,8 @@ class Team implements TableAbstract {
         ${TeamEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${TeamEnum.name.label} TEXT,
         ${TeamEnum.eventId.label} INTEGER,
-        ${TeamEnum.point.label} REAL
+        ${TeamEnum.point.label} REAL,
+        ${TeamEnum.isForfeited.label} INTEGER
       )
     ''');
   }
