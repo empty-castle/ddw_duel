@@ -30,6 +30,7 @@ class _ManagePageState extends State<ManagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        scrolledUnderElevation: 0,
         centerTitle: true,
         title: Row(children: [
           Consumer<SelectedEventProvider>(

@@ -1,11 +1,13 @@
+import 'package:ddw_duel/base/dialog_helper.dart';
 import 'package:ddw_duel/base/player_helper.dart';
 import 'package:ddw_duel/db/domain/duel.dart';
 import 'package:ddw_duel/db/domain/event.dart';
 import 'package:ddw_duel/db/domain/team.dart';
-import 'package:ddw_duel/db/domain/type/duel_status.dart';
+import 'package:ddw_duel/db/domain/type/game_status.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
 import 'package:ddw_duel/db/model/game_model.dart';
 import 'package:ddw_duel/db/repository/duel_repository.dart';
+import 'package:ddw_duel/db/repository/game_repository.dart';
 import 'package:ddw_duel/db/repository/team_repository.dart';
 import 'package:ddw_duel/provider/round_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
@@ -29,30 +31,15 @@ class BracketGameComponent extends StatefulWidget {
 }
 
 class _BracketGameComponentState extends State<BracketGameComponent> {
+  final GameRepository gameRepository = GameRepository();
   final DuelRepository duelRepository = DuelRepository();
   final TeamRepository teamRepository = TeamRepository();
 
   final List<DuelScoreModel> _scores = [
-    DuelScoreModel(
-        label: '2:0',
-        duelStatus: DuelStatus.normal,
-        player1Wins: 2,
-        player2Wins: 0),
-    DuelScoreModel(
-        label: '2:1',
-        duelStatus: DuelStatus.normal,
-        player1Wins: 2,
-        player2Wins: 1),
-    DuelScoreModel(
-        label: '1:2',
-        duelStatus: DuelStatus.normal,
-        player1Wins: 1,
-        player2Wins: 2),
-    DuelScoreModel(
-        label: '0:2',
-        duelStatus: DuelStatus.normal,
-        player1Wins: 0,
-        player2Wins: 2)
+    DuelScoreModel(label: '2:0', player1Wins: 2, player2Wins: 0),
+    DuelScoreModel(label: '2:1', player1Wins: 2, player2Wins: 1),
+    DuelScoreModel(label: '1:2', player1Wins: 1, player2Wins: 2),
+    DuelScoreModel(label: '0:2', player1Wins: 0, player2Wins: 2)
   ];
 
   Duel? _duelA;
@@ -68,41 +55,21 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
       _processWalkover();
       return;
     }
-    if (widget.entryA!.team.isForfeited == 1 ||
-        widget.entryB!.team.isForfeited == 1) {
-      _processForfeit();
-      return;
-    }
     _processNormal();
-  }
-
-  void _processForfeit() {
-    if (widget.gameModel.duels.isNotEmpty) {
-      _processNormal();
-    } else {
-      _saveDuelWithDuelStatus(
-          widget.entryA, widget.entryB, 1, DuelStatus.forfeit);
-      _saveDuelWithDuelStatus(
-          widget.entryA, widget.entryB, 2, DuelStatus.forfeit);
-    }
   }
 
   void _processWalkover() {
     if (widget.gameModel.duels.isNotEmpty) {
       return;
     }
-    _saveDuelWithDuelStatus(
-        widget.entryA, widget.entryB, 1, DuelStatus.walkover);
-    _saveDuelWithDuelStatus(
-        widget.entryA, widget.entryB, 2, DuelStatus.walkover);
+    _saveDuelWalkover(widget.entryA, widget.entryB, 1);
+    _saveDuelWalkover(widget.entryA, widget.entryB, 2);
   }
 
-  void _saveDuelWithDuelStatus(EntryModel? entryA, EntryModel? entryB,
-      int position, DuelStatus duelStatus) {
+  void _saveDuelWalkover(EntryModel? entryA, EntryModel? entryB, int position) {
     Duel newDuel = Duel(
         gameId: widget.gameModel.game.gameId!,
         position: position,
-        status: duelStatus,
         player1Id: entryA != null
             ? PlayerHelper.getPlayerByPosition(
                     widget.entryA!.players, position)!
@@ -111,10 +78,26 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
         player1Point: entryA != null ? 2 : 0,
         player2Id: entryB != null
             ? PlayerHelper.getPlayerByPosition(
-                    widget.entryA!.players, position)!
+                    widget.entryB!.players, position)!
                 .playerId!
             : 0,
         player2Point: entryB != null ? 2 : 0);
+    duelRepository.saveDuel(newDuel);
+  }
+
+  void _saveDuelForfeit(
+      EntryModel entryA, EntryModel entryB, int position, int forfeitTeamId) {
+    Duel newDuel = Duel(
+        gameId: widget.gameModel.game.gameId!,
+        position: position,
+        player1Id:
+            PlayerHelper.getPlayerByPosition(widget.entryA!.players, position)!
+                .playerId!,
+        player1Point: entryA.team.teamId != forfeitTeamId ? 2 : 0,
+        player2Id:
+            PlayerHelper.getPlayerByPosition(widget.entryB!.players, position)!
+                .playerId!,
+        player2Point: entryB.team.teamId != forfeitTeamId ? 2 : 0);
     duelRepository.saveDuel(newDuel);
   }
 
@@ -138,112 +121,62 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
     return null;
   }
 
-  void _onPressedForfeit(EntryModel entry) async {
-    Team team = entry.team;
-    team.isForfeited = 1;
-    await teamRepository.saveTeam(team);
+  void _onPressedForfeit(EntryModel entry) {
+    Future<void> onPressed(EntryModel entry) async {
+      _handleForfeitDuel(entry);
 
-    if (!mounted) return;
+      widget.gameModel.game.status = GameStatus.forfeit;
+      await gameRepository.saveGame(widget.gameModel.game);
 
-    Event selectedEvent =
-        Provider.of<SelectedEventProvider>(context, listen: false)
-            .selectedEvent!;
-    Provider.of<RoundProvider>(context, listen: false)
-        .fetchRound(selectedEvent.eventId!, selectedEvent.currentRound);
+      Team team = entry.team;
+      team.isForfeited = 1;
+      await teamRepository.saveTeam(team);
+
+      setState(() {});
+
+      if (!mounted) return;
+      Event selectedEvent =
+          Provider.of<SelectedEventProvider>(context, listen: false)
+              .selectedEvent!;
+      Provider.of<RoundProvider>(context, listen: false)
+          .fetchRound(selectedEvent.eventId!, selectedEvent.currentRound);
+    }
+
+    DialogHelper.show(
+        context: context,
+        title: '기권 확인',
+        content: '정말로 기권하시겠습니까?',
+        onPressedFunc: () => onPressed(entry));
   }
 
-  void _showForfeitDialog(EntryModel entry) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('기권 확인'),
-          content: const Text('정말로 기권하시겠습니까?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 알림 창 닫기
-              },
-              child: const Text('아니오'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 알림 창 닫기
-                _onPressedForfeit(entry); // 기권 처리 실행
-              },
-              child: const Text('예'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void _handleForfeitDuel(EntryModel entry) {
+    duelRepository.deleteDuel(widget.gameModel.game.gameId!);
 
-  // todo Duel 을 기권하는게 아니라 Game 을 기권하는거다. 부전승도 마찬가지
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.white24, width: 1)),
-          child: Column(
-            children: [
-              Container(
-                decoration: const BoxDecoration(color: Color(0xFF8A61DB)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _makeForfeitButton(widget.entryA),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _makeTeamText(),
-                    ),
-                    _makeForfeitButton(widget.entryB)
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(widget.entryA?.players[0].name ?? ''),
-                  _duelAScoreDropDownButton(),
-                  Text(widget.entryB?.players[0].name ?? ''),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(widget.entryA?.players[1].name ?? ''),
-                  _duelBScoreDropDownButton(),
-                  Text(widget.entryB?.players[1].name ?? ''),
-                ],
-              )
-            ],
-          ),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-      ],
-    );
+    _saveDuelForfeit(widget.entryA!, widget.entryB!, 1, entry.team.teamId!);
+    _saveDuelForfeit(widget.entryA!, widget.entryB!, 2, entry.team.teamId!);
   }
 
   List<Widget> _makeTeamText() {
     List<Widget> buildTeamText(EntryModel entry) {
       List<Widget> widgets = [];
       widgets.add(Text(entry.team.name));
-      if (entry.team.isForfeited == 1) {
+      if (widget.gameModel.game.status == GameStatus.forfeit &&
+          entry.team.isForfeited == 1) {
         widgets.add(const Text('(기권)'));
       }
       return widgets;
     }
 
     if (widget.entryA == null) {
-      return [Text('${widget.entryB!.team.name} 부전승')];
+      List<Widget> result = buildTeamText(widget.entryB!);
+      result.add(const Text(' 부전승'));
+      return result;
     }
+
     if (widget.entryB == null) {
-      return [Text('${widget.entryA!.team.name} 부전승')];
+      List<Widget> result = buildTeamText(widget.entryA!);
+      result.add(const Text(' 부전승'));
+      return result;
     }
 
     List<Widget> result = buildTeamText(widget.entryA!);
@@ -254,30 +187,40 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
   }
 
   Widget _makeForfeitButton(EntryModel? entry) {
-    return entry != null
-        ? TextButton(
-            onPressed: () => _showForfeitDialog(entry),
-            child: const Text(
-              '기권',
-            ),
-          )
-        : const SizedBox.shrink();
+    int endRound = Provider.of<SelectedEventProvider>(context, listen: false)
+        .selectedEvent!
+        .endRound;
+    if (widget.gameModel.game.round <= endRound) {
+      return const SizedBox.shrink();
+    }
+    if (entry == null || entry.team.isForfeited == 1) {
+      return const SizedBox.shrink();
+    }
+    return TextButton(
+      onPressed: () => _onPressedForfeit(entry),
+      child: const Text(
+        '기권',
+      ),
+    );
   }
 
   Widget _scoreDropDownButton(
       DuelScoreModel? currentScore, ValueChanged<DuelScoreModel?> onChanged) {
-    if (widget.entryA == null || widget.entryB == null) {
+    if (widget.entryA == null ||
+        widget.entryB == null ||
+        widget.gameModel.game.status != GameStatus.normal) {
       return const SizedBox(
         width: 120,
         height: 48,
       );
     }
 
-    if (currentScore != null && !_scores.contains(currentScore)) {
-      return const SizedBox(
-        width: 120,
-        height: 48,
-      );
+    bool isEndRound = false;
+    int endRound = Provider.of<SelectedEventProvider>(context, listen: false)
+        .selectedEvent!
+        .endRound;
+    if (widget.gameModel.game.round <= endRound) {
+      isEndRound = true;
     }
 
     return Padding(
@@ -290,7 +233,7 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
             child: Text(score.label),
           );
         }).toList(),
-        onChanged: onChanged,
+        onChanged: isEndRound ? null : onChanged,
       ),
     );
   }
@@ -320,7 +263,6 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
     int player2Wins = _convertPointsToWins(duel.player2Point, position);
     return DuelScoreModel(
       label: '$player1Wins:$player2Wins',
-      duelStatus: duel.status,
       player1Wins: player1Wins,
       player2Wins: player2Wins,
     );
@@ -375,7 +317,6 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
       Duel newDuel = Duel(
           gameId: widget.gameModel.game.gameId!,
           position: position,
-          status: duelScore.duelStatus,
           player1Id: PlayerHelper.getPlayerByPosition(
                   widget.entryA!.players, position)!
               .playerId!,
@@ -388,5 +329,55 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
       newDuel.duelId = newDuelId;
       return newDuel;
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.white24, width: 1)),
+          child: Column(
+            children: [
+              Container(
+                height: 36,
+                decoration: const BoxDecoration(color: Color(0xFF8A61DB)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _makeForfeitButton(widget.entryA),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _makeTeamText(),
+                    ),
+                    _makeForfeitButton(widget.entryB)
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(widget.entryA?.players[0].name ?? ''),
+                  _duelAScoreDropDownButton(),
+                  Text(widget.entryB?.players[0].name ?? ''),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(widget.entryA?.players[1].name ?? ''),
+                  _duelBScoreDropDownButton(),
+                  Text(widget.entryB?.players[1].name ?? ''),
+                ],
+              )
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+      ],
+    );
   }
 }

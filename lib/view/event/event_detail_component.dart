@@ -21,11 +21,6 @@ class _EventDetailComponentState extends State<EventDetailComponent> {
       context,
       MaterialPageRoute(builder: (context) => const ManagePage()),
     );
-
-    // todo 이벤트 로딩을 기다려야 함
-    if (mounted) {
-      Provider.of<EventProvider>(context, listen: false).fetchEvent();
-    }
   }
 
   @override

@@ -38,12 +38,12 @@ class PlayerRepository {
     });
   }
 
-  Future<void> deletePlayer(int id) async {
+  Future<void> deletePlayer(int teamId) async {
     Database db = await dbHelper.database;
     await db.delete(
       PlayerEnum.tableName.label,
-      where: "${PlayerEnum.id.label} = ?",
-      whereArgs: [id],
+      where: "${PlayerEnum.teamId.label} = ?",
+      whereArgs: [teamId],
     );
   }
 

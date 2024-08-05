@@ -1,4 +1,7 @@
+import 'package:ddw_duel/base/dialog_helper.dart';
+import 'package:ddw_duel/db/domain/event.dart';
 import 'package:ddw_duel/db/domain/team.dart';
+import 'package:ddw_duel/db/repository/player_repository.dart';
 import 'package:ddw_duel/db/repository/team_repository.dart';
 import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
@@ -17,11 +20,15 @@ class TeamMangeComponent extends StatefulWidget {
 
 class _TeamMangeComponentState extends State<TeamMangeComponent> {
   final TeamRepository teamRepo = TeamRepository();
+  final PlayerRepository playerRepository = PlayerRepository();
 
   final TextEditingController _teamNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void _onPressed() async {
+  bool _isInProgress = false;
+  bool _isEndRound = false;
+
+  void _onPressedSaveTeam() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -51,6 +58,59 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
     }
   }
 
+  void _onPressedDeleteTeam(Team team) {
+    Future<void> onPressed(Team team) async {
+      await playerRepository.deletePlayer(team.teamId!);
+      await teamRepo.deleteTeam(team.teamId!);
+
+      if (!mounted) return;
+      int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
+          .selectedEvent!
+          .eventId!;
+      await Provider.of<EntryProvider>(context, listen: false)
+          .fetchEntries(eventId);
+
+      if (!mounted) return;
+      SnackbarHelper.showInfoSnackbar(context, "${team.name} 팀 삭제가 완료되었습니다.");
+    }
+
+    DialogHelper.show(
+        context: context,
+        title: '팀 삭제 확인',
+        content: '정말로 삭제하시겠습니까?',
+        onPressedFunc: () => onPressed(team));
+  }
+
+  void _onPressedForfeitTeam(Team team) {
+    Future<void> onPressed(Team team) async {
+      team.isForfeited = 1;
+      await teamRepo.saveTeam(team);
+      setState(() {});
+    }
+
+    DialogHelper.show(
+        context: context,
+        title: '기권 확인',
+        content: '정말로 기권 처리하시겠습니까?',
+        onPressedFunc: () => onPressed(team));
+  }
+
+  bool _isEnabledForfeitButton(Team team) {
+    return _isEndRound && team.isForfeited == 0;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
+
+    _isInProgress = selectedEvent.currentRound != 0;
+    _isEndRound = selectedEvent.currentRound == selectedEvent.endRound;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SelectedEntryProvider>(
@@ -61,7 +121,7 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
             child: Text('팀을 선택해주세요.'),
           ));
         }
-        _teamNameController.text = provider.selectedEntryModel?.team.name ?? '';
+        _teamNameController.text = provider.selectedEntryModel!.team.name;
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Form(
@@ -69,6 +129,34 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: ElevatedButton(
+                        onPressed: _isEnabledForfeitButton(
+                                provider.selectedEntryModel!.team)
+                            ? () => _onPressedForfeitTeam(
+                                provider.selectedEntryModel!.team)
+                            : null,
+                        child: const Text(
+                          '기권',
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: _isInProgress
+                          ? null
+                          : () => _onPressedDeleteTeam(
+                              provider.selectedEntryModel!.team),
+                      child: const Text(
+                        '팀 삭제',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: TextFormField(
@@ -88,7 +176,7 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: ElevatedButton(
-                    onPressed: _onPressed,
+                    onPressed: _onPressedSaveTeam,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 150.0),
                     ),

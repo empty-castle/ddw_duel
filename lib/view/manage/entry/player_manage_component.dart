@@ -28,13 +28,24 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
   final _playerBFormKey = GlobalKey<FormState>();
   final TextEditingController _playerBNameController = TextEditingController();
 
+  bool _isSaving = false;
+
   void _onPressed() async {
-    await _savePlayer(_playerAFormKey, _playerANameController, 1);
-    await _savePlayer(_playerBFormKey, _playerBNameController, 2);
-    await _afterSavePlayer();
+    if (_isSaving) return;
+
+    _isSaving = true;
+
+    try {
+      await _savePlayer(_playerAFormKey, _playerANameController, 1);
+      await _savePlayer(_playerBFormKey, _playerBNameController, 2);
+      await _afterSavePlayer();
+    } finally {
+      if (mounted) {
+        _isSaving = false;
+      }
+    }
   }
 
-  // todo 선수가 없을떄 저장을 여러번 반복해서 누르면 에러
   Future<void> _savePlayer(GlobalKey<FormState> formKey,
       TextEditingController nameController, int position) async {
     if (formKey.currentState!.validate()) {
@@ -145,7 +156,7 @@ class _PlayerManageComponentState extends State<PlayerManageComponent> {
                 ),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _onPressed,
+                    onPressed: _isSaving ? null : _onPressed,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           vertical: 8.0, horizontal: 150.0),

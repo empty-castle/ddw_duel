@@ -20,6 +20,8 @@ class _TeamListComponentState extends State<TeamListComponent> {
 
   Team? _selectedTeam;
 
+  bool _isInProgress = false;
+
   void _onSelectChanged(EntryModel entryModel) {
     setState(() {
       _selectedTeam = entryModel.team;
@@ -34,11 +36,12 @@ class _TeamListComponentState extends State<TeamListComponent> {
         .eventId!;
     List<Team> teams = await teamRepo.findTeams(eventId);
 
+    // todo 팀 이름 순번
     Team team = Team(
       eventId: eventId,
       name: '${teams.length + 1}팀',
     );
-    teamRepo.saveTeam(team);
+    await teamRepo.saveTeam(team);
 
     if (!mounted) return;
     await Provider.of<EntryProvider>(context, listen: false)
@@ -46,6 +49,15 @@ class _TeamListComponentState extends State<TeamListComponent> {
 
     if (!mounted) return;
     SnackbarHelper.showInfoSnackbar(context, "${team.name} 팀 저장이 완료되었습니다.");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _isInProgress = Provider.of<SelectedEventProvider>(context, listen: false)
+        .selectedEvent!
+        .currentRound !=
+        0;
   }
 
   @override
@@ -60,7 +72,7 @@ class _TeamListComponentState extends State<TeamListComponent> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: ElevatedButton(
-                  onPressed: _onPressedNewTeam,
+                  onPressed: _isInProgress ? null : _onPressedNewTeam,
                   child: const Text(
                     '팀 추가',
                   ),
