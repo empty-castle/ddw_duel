@@ -66,7 +66,6 @@ class _RoundViewState extends State<RoundView> {
     });
   }
 
-  // todo player 에도 점수 합산
   void aggregatePoints(
       Map<int, EntryModel> entryMap, List<GameModel> gameModels) {
     for (var gameModel in gameModels) {

@@ -4,8 +4,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class Event implements TableAbstract {
   final int? eventId;
-  final String name;
-  final String? description;
+  String name;
+  String? description;
   int currentRound;
   int endRound;
 

@@ -52,12 +52,12 @@ class GameRepository {
     });
   }
 
-  Future<void> deleteGame(int id) async {
+  Future<void> deleteGame(int eventId) async {
     Database db = await dbHelper.database;
     await db.delete(
       GameEnum.tableName.label,
-      where: "${GameEnum.id.label} = ?",
-      whereArgs: [id],
+      where: "${GameEnum.eventId.label} = ?",
+      whereArgs: [eventId],
     );
   }
 

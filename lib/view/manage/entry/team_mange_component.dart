@@ -44,12 +44,10 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
       await teamRepo.saveTeam(selectedTeam);
 
       if (!mounted) return;
-
       await Provider.of<EntryProvider>(context, listen: false)
           .fetchEntries(eventId);
 
       if (!mounted) return;
-
       selectedEntryProvider.notify();
       SnackbarHelper.showInfoSnackbar(
           context, "${_teamNameController.text} 저장이 완료되었습니다.");
@@ -158,7 +156,7 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
                 ),
                 const SizedBox(height: 16),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
+                  padding: const EdgeInsets.only(bottom: 16.0),
                   child: TextFormField(
                     controller: _teamNameController,
                     decoration: const InputDecoration(
@@ -173,15 +171,12 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: ElevatedButton(
-                    onPressed: _onPressedSaveTeam,
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 150.0),
-                    ),
-                    child: const Text('저장'),
+                ElevatedButton(
+                  onPressed: _onPressedSaveTeam,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 150.0),
                   ),
+                  child: const Text('저장'),
                 ),
               ],
             ),

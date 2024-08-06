@@ -36,7 +36,6 @@ class _TeamListComponentState extends State<TeamListComponent> {
         .eventId!;
     List<Team> teams = await teamRepo.findTeams(eventId);
 
-    // todo 팀 이름 순번
     Team team = Team(
       eventId: eventId,
       name: '${teams.length + 1}팀',
@@ -55,8 +54,8 @@ class _TeamListComponentState extends State<TeamListComponent> {
   void initState() {
     super.initState();
     _isInProgress = Provider.of<SelectedEventProvider>(context, listen: false)
-        .selectedEvent!
-        .currentRound !=
+            .selectedEvent!
+            .currentRound !=
         0;
   }
 
@@ -89,6 +88,9 @@ class _TeamListComponentState extends State<TeamListComponent> {
                         DataColumn(
                             label: Text('이름',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('기권',
+                                style: TextStyle(fontWeight: FontWeight.bold))),
                       ],
                       rows: provider.entries.map((entryModel) {
                         return DataRow(
@@ -99,14 +101,25 @@ class _TeamListComponentState extends State<TeamListComponent> {
                             },
                             cells: [
                               DataCell(SizedBox(
-                                width: constraints.maxWidth * 0.8,
+                                width: constraints.maxWidth * 0.6,
                                 child: Text(
                                   entryModel.team.name,
                                   overflow: TextOverflow.ellipsis,
                                   softWrap: false,
                                   style: const TextStyle(fontSize: 16),
                                 ),
-                              ))
+                              )),
+                              DataCell(Align(
+                                alignment: Alignment.centerLeft,
+                                child: Icon(
+                                  entryModel.team.isForfeited == 1
+                                      ? Icons.check
+                                      : Icons.clear,
+                                  color: entryModel.team.isForfeited == 1
+                                      ? Colors.red
+                                      : Colors.green,
+                                ),
+                              )),
                             ]);
                       }).toList(),
                     ),

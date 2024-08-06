@@ -4,7 +4,6 @@ enum PlayerEnum {
   name('name'),
   teamId('teamId'),
   position('position'),
-  point('point'),
   ;
 
   final String label;

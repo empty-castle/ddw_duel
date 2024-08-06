@@ -50,6 +50,15 @@ class TeamRepository {
     }
   }
 
+  Future<void> deleteTeamByEventId(int eventId) async {
+    Database db = await dbHelper.database;
+    await db.delete(
+      TeamEnum.tableName.label,
+      where: "${TeamEnum.eventId.label} = ?",
+      whereArgs: [eventId],
+    );
+  }
+
   Future<void> deleteTeam(int id) async {
     Database db = await dbHelper.database;
     await db.delete(

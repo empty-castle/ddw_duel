@@ -1,7 +1,6 @@
 import 'package:ddw_duel/provider/entry_provider.dart';
 import 'package:ddw_duel/provider/selected_entry_provider.dart';
 import 'package:ddw_duel/provider/selected_event_provider.dart';
-import 'package:ddw_duel/view/manage/entry/player_history_component.dart';
 import 'package:ddw_duel/view/manage/entry/player_list_component.dart';
 import 'package:ddw_duel/view/manage/entry/player_manage_component.dart';
 import 'package:ddw_duel/view/manage/entry/team_list_component.dart';
@@ -19,7 +18,7 @@ class EntryView extends StatefulWidget {
 class _EntryViewState extends State<EntryView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _tabs = ['매칭 히스토리', '팀 관리', '선수 관리'];
+  final List<String> _tabs = ['팀 관리', '선수 관리'];
   late List<Widget> _tabViews;
 
   late Future<void> _future;
@@ -42,7 +41,6 @@ class _EntryViewState extends State<EntryView>
 
   void initTab(int eventId) {
     _tabViews = [
-      const PlayerHistoryComponent(),
       const TeamMangeComponent(),
       const PlayerManageComponent(),
     ];

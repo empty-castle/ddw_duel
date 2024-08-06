@@ -7,7 +7,6 @@ class Player implements TableAbstract {
   String name;
   final int teamId;
   final int position;
-  final int point = 0;
 
   Player(
       {this.playerId,
@@ -20,8 +19,7 @@ class Player implements TableAbstract {
     return {
       PlayerEnum.name.label: name,
       PlayerEnum.teamId.label: teamId,
-      PlayerEnum.position.label: position,
-      PlayerEnum.point.label: point,
+      PlayerEnum.position.label: position
     };
   }
 
@@ -31,8 +29,7 @@ class Player implements TableAbstract {
         ${PlayerEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${PlayerEnum.name.label} TEXT,
         ${PlayerEnum.teamId.label} INTEGER,
-        ${PlayerEnum.position.label} INTEGER,
-        ${PlayerEnum.point.label} INTEGER
+        ${PlayerEnum.position.label} INTEGER
       )
     ''');
   }

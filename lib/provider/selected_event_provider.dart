@@ -6,6 +6,10 @@ class SelectedEventProvider with ChangeNotifier {
 
   Event? get selectedEvent => _selectedEvent;
 
+  void notify() {
+    notifyListeners();
+  }
+
   void setSelectedEvent(Event selectedEvent) {
     _selectedEvent = selectedEvent;
     notifyListeners();
