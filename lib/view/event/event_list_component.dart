@@ -76,6 +76,7 @@ class _EventListComponentState extends State<EventListComponent> {
       await Provider.of<EventProvider>(context, listen: false).fetchEvent();
 
       if (!mounted) return;
+      Provider.of<SelectedEventProvider>(context, listen: false).setSelectedEvent(null);
       SnackbarHelper.showInfoSnackbar(context, "삭제가 완료되었습니다.");
     }
 

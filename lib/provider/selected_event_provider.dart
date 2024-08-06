@@ -10,7 +10,7 @@ class SelectedEventProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedEvent(Event selectedEvent) {
+  void setSelectedEvent(Event? selectedEvent) {
     _selectedEvent = selectedEvent;
     notifyListeners();
   }
