@@ -10,8 +10,6 @@ class EntryProvider with ChangeNotifier {
   List<EntryModel> get entries => _entries;
 
   Future<void> fetchEntries(int eventId) async {
-    // fixme
-    await Future.delayed(Duration(seconds: 1));
     _entries = await entryRepositoryCustom.findAllEntry(eventId);
     notifyListeners();
   }

@@ -10,8 +10,6 @@ class RoundProvider with ChangeNotifier {
   RoundModel? get round => _round;
 
   Future<void> fetchRound(int eventId, int currentRound) async {
-    // fixme
-    await Future.delayed(Duration(seconds: 1));
     _round = await roundRepositoryCustom.findRound(eventId, currentRound);
     notifyListeners();
   }
