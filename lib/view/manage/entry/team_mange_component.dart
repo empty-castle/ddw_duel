@@ -84,6 +84,17 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
       team.isForfeited = 1;
       await teamRepo.saveTeam(team);
       setState(() {});
+
+      if (!mounted) return;
+      int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
+          .selectedEvent!
+          .eventId!;
+      await Provider.of<EntryProvider>(context, listen: false)
+          .fetchEntries(eventId);
+
+      if (!mounted) return;
+      SnackbarHelper.showInfoSnackbar(
+          context, "${_teamNameController.text} 기권 처리가 완료되었습니다.");
     }
 
     DialogHelper.show(
