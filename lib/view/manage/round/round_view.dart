@@ -152,7 +152,11 @@ class _RoundViewState extends State<RoundView> {
   void _createBracket(Event selectedEvent) async {
     Map<int, EntryModel> entryMap =
         Provider.of<RoundProvider>(context, listen: false).round!.entryMap;
-    List<List<int>> rankedTeamIdList = _makeRankedTeamIdList(entryMap);
+
+    List<EntryModel> activeEntries = _filteringForfeitTeams(entryMap);
+
+    List<List<int>> rankedTeamIdList = _makeRankedTeamIdList(activeEntries);
+
     Map<int, Set<int>> teamMatchHistory = await roundRepositoryCustom
         .findTeamMatchHistory(selectedEvent.eventId!);
 
@@ -160,7 +164,7 @@ class _RoundViewState extends State<RoundView> {
     List<Game> games = [];
 
     _processWalkoverTeam(
-        entryMap.values.length, rankedTeamIdList, selectedEvent);
+        activeEntries.length, rankedTeamIdList, selectedEvent);
 
     for (List<int> rankGroup in rankedTeamIdList) {
       _processRankGroup(
@@ -173,6 +177,16 @@ class _RoundViewState extends State<RoundView> {
     for (var game in games) {
       gameRepo.saveGame(game);
     }
+  }
+
+  List<EntryModel> _filteringForfeitTeams(Map<int, EntryModel> entryMap) {
+    List<EntryModel> activeEntries = [];
+    for (var entry in entryMap.values) {
+      if (entry.team.isForfeited != 1) {
+        activeEntries.add(entry);
+      }
+    }
+    return activeEntries;
   }
 
   void _processWalkoverTeam(
@@ -314,15 +328,8 @@ class _RoundViewState extends State<RoundView> {
     return null;
   }
 
-  List<List<int>> _makeRankedTeamIdList(Map<int, EntryModel> entryMap) {
+  List<List<int>> _makeRankedTeamIdList(List<EntryModel> activeEntries) {
     List<List<int>> rankedTeamsList = [];
-
-    List<EntryModel> activeEntries = [];
-    for (var entry in entryMap.values) {
-      if (entry.team.isForfeited != 1) {
-        activeEntries.add(entry);
-      }
-    }
 
     List<EntryModel> sortedEntries = activeEntries
       ..sort((a, b) => b.team.point.compareTo(a.team.point));
