@@ -1,15 +1,20 @@
 import 'dart:collection';
 
+import 'package:ddw_duel/base/player_helper.dart';
 import 'package:ddw_duel/base/snackbar_helper.dart';
+import 'package:ddw_duel/db/domain/duel.dart';
 import 'package:ddw_duel/db/domain/event.dart';
 import 'package:ddw_duel/db/domain/game.dart';
+import 'package:ddw_duel/db/domain/player.dart';
 import 'package:ddw_duel/db/domain/team.dart';
 import 'package:ddw_duel/db/domain/type/game_status.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
 import 'package:ddw_duel/db/model/game_model.dart';
 import 'package:ddw_duel/db/model/round_model.dart';
+import 'package:ddw_duel/db/repository/duel_repository.dart';
 import 'package:ddw_duel/db/repository/event_repository.dart';
 import 'package:ddw_duel/db/repository/game_repository.dart';
+import 'package:ddw_duel/db/repository/player_repository.dart';
 import 'package:ddw_duel/db/repository/round_repository_custom.dart';
 import 'package:ddw_duel/db/repository/team_repository.dart';
 import 'package:ddw_duel/provider/round_provider.dart';
@@ -32,6 +37,8 @@ class _RoundViewState extends State<RoundView> {
   final EventRepository eventRepo = EventRepository();
   final GameRepository gameRepo = GameRepository();
   final TeamRepository teamRepo = TeamRepository();
+  final DuelRepository duelRepository = DuelRepository();
+  final PlayerRepository playerRepository = PlayerRepository();
 
   int? _selectedRound;
 
@@ -99,6 +106,9 @@ class _RoundViewState extends State<RoundView> {
 
   bool _validateDuelsInGameModels(List<GameModel> gameModels) {
     for (var gameModel in gameModels) {
+      if (gameModel.game.status == GameStatus.cancelled) {
+        continue;
+      }
       if (gameModel.duels.length != 2) {
         return false;
       }
@@ -157,7 +167,8 @@ class _RoundViewState extends State<RoundView> {
         .setSelectedEvent(selectedEvent);
   }
 
-  void _createBracket(Map<int, EntryModel> entryMap, Event selectedEvent) async {
+  void _createBracket(
+      Map<int, EntryModel> entryMap, Event selectedEvent) async {
     List<EntryModel> activeEntries = _filteringForfeitTeams(entryMap);
 
     List<List<int>> rankedTeamIdList = _makeRankedTeamIdList(activeEntries);
@@ -193,20 +204,37 @@ class _RoundViewState extends State<RoundView> {
     return activeEntries;
   }
 
-  void _processWalkoverTeam(
-      int entryLength, List<List<int>> rankedTeamIdList, Event selectedEvent) {
+  void _processWalkoverTeam(int entryLength, List<List<int>> rankedTeamIdList,
+      Event selectedEvent) async {
     if (entryLength % 2 == 0) {
       return;
     }
     List<int> lastRankedTeamIdList = rankedTeamIdList.removeLast();
     lastRankedTeamIdList.shuffle();
-    int lastRankedTeamId = lastRankedTeamIdList.removeLast();
-    gameRepo.saveGame(
-        _makeGame(selectedEvent, lastRankedTeamId, null, GameStatus.walkover));
 
+    int lastRankedTeamId = lastRankedTeamIdList.removeLast();
     if (lastRankedTeamIdList.isNotEmpty) {
       rankedTeamIdList.add(lastRankedTeamIdList);
     }
+
+    int gameId = await gameRepo.saveGame(
+        _makeGame(selectedEvent, lastRankedTeamId, null, GameStatus.walkover));
+    List<Player> players = await playerRepository.findPlayers(lastRankedTeamId);
+    _saveDuelWalkover(
+        gameId, PlayerHelper.getPlayerByPosition(players, 1)!.playerId!, 1);
+    _saveDuelWalkover(
+        gameId, PlayerHelper.getPlayerByPosition(players, 2)!.playerId!, 2);
+  }
+
+  void _saveDuelWalkover(int gameId, int playerId, int position) {
+    Duel newDuel = Duel(
+        gameId: gameId,
+        position: position,
+        player1Id: playerId,
+        player1Point: 2,
+        player2Id: 0,
+        player2Point: 0);
+    duelRepository.saveDuel(newDuel);
   }
 
   void _processRankGroup(

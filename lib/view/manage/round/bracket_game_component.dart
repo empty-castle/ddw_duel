@@ -51,38 +51,7 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
   @override
   void initState() {
     super.initState();
-    if (widget.entryA == null || widget.entryB == null) {
-      _processWalkover();
-      return;
-    }
     _processNormal();
-  }
-
-  void _processWalkover() {
-    if (widget.gameModel.duels.isNotEmpty) {
-      return;
-    }
-    _saveDuelWalkover(widget.entryA, widget.entryB, 1);
-    _saveDuelWalkover(widget.entryA, widget.entryB, 2);
-  }
-
-  void _saveDuelWalkover(EntryModel? entryA, EntryModel? entryB, int position) {
-    Duel newDuel = Duel(
-        gameId: widget.gameModel.game.gameId!,
-        position: position,
-        player1Id: entryA != null
-            ? PlayerHelper.getPlayerByPosition(
-                    widget.entryA!.players, position)!
-                .playerId!
-            : 0,
-        player1Point: entryA != null ? 2 : 0,
-        player2Id: entryB != null
-            ? PlayerHelper.getPlayerByPosition(
-                    widget.entryB!.players, position)!
-                .playerId!
-            : 0,
-        player2Point: entryB != null ? 2 : 0);
-    duelRepository.saveDuel(newDuel);
   }
 
   void _saveDuelForfeit(
@@ -125,7 +94,7 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
     Future<void> onPressed(EntryModel entry) async {
       _handleForfeitDuel(entry);
 
-      widget.gameModel.game.status = GameStatus.forfeit;
+      widget.gameModel.game.status = _determineGameStatus();
       await gameRepository.saveGame(widget.gameModel.game);
 
       Team team = entry.team;
@@ -152,15 +121,33 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
   void _handleForfeitDuel(EntryModel entry) {
     duelRepository.deleteDuel(widget.gameModel.game.gameId!);
 
-    _saveDuelForfeit(widget.entryA!, widget.entryB!, 1, entry.team.teamId!);
-    _saveDuelForfeit(widget.entryA!, widget.entryB!, 2, entry.team.teamId!);
+    if (widget.entryA == null || widget.entryB == null) {
+      return;
+    }
+
+    if (widget.entryA!.team.isForfeited == 1 ||
+        widget.entryB!.team.isForfeited == 1) {
+      return;
+    }
+
+    if (widget.entryA != null && widget.entryB != null) {
+      _saveDuelForfeit(widget.entryA!, widget.entryB!, 1, entry.team.teamId!);
+      _saveDuelForfeit(widget.entryA!, widget.entryB!, 2, entry.team.teamId!);
+    }
+  }
+
+  GameStatus _determineGameStatus() {
+    if (widget.entryA == null || widget.entryB == null || widget.entryA!.team.isForfeited == 1 || widget.entryB!.team.isForfeited == 1) {
+      return GameStatus.cancelled;
+    }
+    return GameStatus.forfeit;
   }
 
   List<Widget> _makeTeamText() {
     List<Widget> buildTeamText(EntryModel entry) {
       List<Widget> widgets = [];
       widgets.add(Text(entry.team.name));
-      if (widget.gameModel.game.status == GameStatus.forfeit &&
+      if (widget.gameModel.game.status != GameStatus.normal &&
           entry.team.isForfeited == 1) {
         widgets.add(const Text('(기권)'));
       }
