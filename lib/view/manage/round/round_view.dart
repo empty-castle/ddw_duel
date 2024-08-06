@@ -107,22 +107,32 @@ class _RoundViewState extends State<RoundView> {
   }
 
   void _onPressedNewRound() {
-    List<String> incompleteTeams = _checkIncompleteTeams();
-    if (incompleteTeams.isNotEmpty) {
-      String message = '[${incompleteTeams.join(', ')}] 팀 선수 입력이 완료되지 않았습니다.';
-      SnackbarHelper.showErrorSnackbar(context, message);
-      return;
-    }
-
     Event selectedEvent =
         Provider.of<SelectedEventProvider>(context, listen: false)
             .selectedEvent!;
+    Map<int, EntryModel> entryMap =
+        Provider.of<RoundProvider>(context, listen: false).round!.entryMap;
+
+    if (entryMap.length < 2) {
+      SnackbarHelper.showErrorSnackbar(context, '최소 2개의 팀을 등록해 주세요.');
+      return;
+    }
+
+    if (selectedEvent.currentRound == 0) {
+      List<String> incompleteTeams = _checkIncompleteTeams(entryMap);
+      if (incompleteTeams.isNotEmpty) {
+        String message = '[${incompleteTeams.join(', ')}] 팀 선수 입력이 완료되지 않았습니다.';
+        SnackbarHelper.showErrorSnackbar(context, message);
+        return;
+      }
+    }
+
     if (selectedEvent.endRound < selectedEvent.currentRound) {
       SnackbarHelper.showErrorSnackbar(context, '집계가 완료 되지 않았습니다.');
       return;
     }
 
-    _createBracket(selectedEvent);
+    _createBracket(entryMap, selectedEvent);
     _createNewRound(selectedEvent);
 
     setState(() {
@@ -130,10 +140,8 @@ class _RoundViewState extends State<RoundView> {
     });
   }
 
-  List<String> _checkIncompleteTeams() {
+  List<String> _checkIncompleteTeams(Map<int, EntryModel> entryMap) {
     List<String> results = [];
-    Map<int, EntryModel> entryMap =
-        Provider.of<RoundProvider>(context, listen: false).round!.entryMap;
     for (var entry in entryMap.values) {
       if (entry.players.length != 2) {
         results.add(entry.team.name);
@@ -149,10 +157,7 @@ class _RoundViewState extends State<RoundView> {
         .setSelectedEvent(selectedEvent);
   }
 
-  void _createBracket(Event selectedEvent) async {
-    Map<int, EntryModel> entryMap =
-        Provider.of<RoundProvider>(context, listen: false).round!.entryMap;
-
+  void _createBracket(Map<int, EntryModel> entryMap, Event selectedEvent) async {
     List<EntryModel> activeEntries = _filteringForfeitTeams(entryMap);
 
     List<List<int>> rankedTeamIdList = _makeRankedTeamIdList(activeEntries);
@@ -163,8 +168,7 @@ class _RoundViewState extends State<RoundView> {
     Queue<int> remainTeamIdQueue = Queue();
     List<Game> games = [];
 
-    _processWalkoverTeam(
-        activeEntries.length, rankedTeamIdList, selectedEvent);
+    _processWalkoverTeam(activeEntries.length, rankedTeamIdList, selectedEvent);
 
     for (List<int> rankGroup in rankedTeamIdList) {
       _processRankGroup(
@@ -219,7 +223,8 @@ class _RoundViewState extends State<RoundView> {
           _findMatchingTeam(team1Id, shuffledTeamIds, teamMatchHistory);
 
       if (team2Id != null) {
-        games.add(_makeGame(selectedEvent, team1Id, team2Id, GameStatus.normal));
+        games
+            .add(_makeGame(selectedEvent, team1Id, team2Id, GameStatus.normal));
       } else {
         remainTeamIdQueue.add(team1Id);
         break;
@@ -390,7 +395,8 @@ class _RoundViewState extends State<RoundView> {
   }
 
   bool _isDisabledScoringButton() {
-    Event selectedEvent = Provider.of<SelectedEventProvider>(context).selectedEvent!;
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context).selectedEvent!;
     if (_selectedRound != null) {
       return _selectedRound! <= selectedEvent.endRound;
     } else {
@@ -399,14 +405,16 @@ class _RoundViewState extends State<RoundView> {
   }
 
   bool _isDisabledNewRoundButton() {
-    Event selectedEvent = Provider.of<SelectedEventProvider>(context).selectedEvent!;
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context).selectedEvent!;
     return selectedEvent.currentRound != selectedEvent.endRound;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Event selectedEvent = Provider.of<SelectedEventProvider>(context).selectedEvent!;
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context).selectedEvent!;
     _selectedRound = selectedEvent.currentRound;
     _future = _fetchData(selectedEvent.eventId!, selectedEvent.currentRound);
   }
@@ -428,8 +436,8 @@ class _RoundViewState extends State<RoundView> {
                     Container(
                       decoration: const BoxDecoration(
                           border: Border(
-                              bottom: BorderSide(
-                                  color: Colors.white24, width: 1))),
+                              bottom:
+                                  BorderSide(color: Colors.white24, width: 1))),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -454,17 +462,20 @@ class _RoundViewState extends State<RoundView> {
                               child: Row(
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.only(right: 8.0),
+                                    padding: const EdgeInsets.only(right: 8.0),
                                     child: ElevatedButton(
-                                      onPressed: _isDisabledScoringButton() ? null : _onPressedScoring,
+                                      onPressed: _isDisabledScoringButton()
+                                          ? null
+                                          : _onPressedScoring,
                                       child: const Text(
                                         '집계',
                                       ),
                                     ),
                                   ),
                                   ElevatedButton(
-                                    onPressed: _isDisabledNewRoundButton() ? null : _onPressedNewRound,
+                                    onPressed: _isDisabledNewRoundButton()
+                                        ? null
+                                        : _onPressedNewRound,
                                     child: const Text(
                                       '라운드 생성',
                                     ),
@@ -489,8 +500,7 @@ class _RoundViewState extends State<RoundView> {
                 child: Container(
                   decoration: const BoxDecoration(
                       border: Border(
-                          left:
-                              BorderSide(color: Colors.white24, width: 1))),
+                          left: BorderSide(color: Colors.white24, width: 1))),
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: TeamRankingComponent(),
