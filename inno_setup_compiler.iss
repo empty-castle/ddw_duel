@@ -1,6 +1,7 @@
 [Setup]
 AppName=DDWduel
 AppVersion=1.0
+AppId={{00fce5fd-5630-40cd-87df-f4452c5cc339}}
 DefaultDirName={pf}\DDWduel
 DefaultGroupName=DDWduel
 OutputDir=.
