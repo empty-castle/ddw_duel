@@ -71,7 +71,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         swapLegacyOnMaterial3: true,
         fontFamily: 'Pretendard',
-
       ),
       darkTheme: FlexThemeData.dark(
         scheme: FlexScheme.materialHc,
