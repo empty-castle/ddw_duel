@@ -12,4 +12,4 @@ SolidCompression=yes
 Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\DDWduel"; Filename: "{app}\DDWduel.exe"
+Name: "{group}\DDWduel"; Filename: "{app}\ddw_duel.exe"
