@@ -27,9 +27,15 @@ class Event implements TableAbstract {
         ${EventEnum.id.label} INTEGER PRIMARY KEY AUTOINCREMENT,
         ${EventEnum.name.label} TEXT,
         ${EventEnum.description.label} TEXT,
-        ${EventEnum.currentRound.label} INTEGER,
-        ${EventEnum.endRound.label} INTEGER
+        ${EventEnum.currentRound.label} INTEGER DEFAULT 0,
+        ${EventEnum.endRound.label} INTEGER DEFAULT 0
       )
     ''');
+  }
+  
+  static Future<void> upgradeTable(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+
+    }
   }
 }

@@ -61,6 +61,15 @@ class GameRepository {
     );
   }
 
+  Future<void> deleteCurrentRoundGame(int eventId, int currentRound) async {
+    Database db = await dbHelper.database;
+    await db.delete(
+      GameEnum.tableName.label,
+      where: "${GameEnum.eventId.label} = ? AND ${GameEnum.round.label} = ?",
+      whereArgs: [eventId, currentRound],
+    );
+  }
+
   Game _makeGame(Map<String, dynamic> map) {
     return Game(
       gameId: map[GameEnum.id.label],
@@ -72,18 +81,5 @@ class GameRepository {
       team2Id: map[GameEnum.team2Id.label],
       team2Point: map[GameEnum.team2Point.label],
     );
-  }
-
-  int _gameStatusPriority(GameStatus status) {
-    switch (status) {
-      case GameStatus.normal:
-        return 1;
-      case GameStatus.forfeit:
-        return 2;
-      case GameStatus.walkover:
-        return 3;
-      default:
-        return 4;
-    }
   }
 }

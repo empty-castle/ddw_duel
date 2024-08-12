@@ -99,6 +99,7 @@ class _BracketGameComponentState extends State<BracketGameComponent> {
 
       Team team = entry.team;
       team.isForfeited = 1;
+      team.forfeitRound = widget.gameModel.game.round;
       await teamRepository.saveTeam(team);
 
       setState(() {});

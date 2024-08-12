@@ -51,4 +51,10 @@ class Game implements TableAbstract {
       )
     ''');
   }
+
+  static Future<void> upgradeTable(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+
+    }
+  }
 }

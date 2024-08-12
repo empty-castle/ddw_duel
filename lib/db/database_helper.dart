@@ -27,15 +27,23 @@ class DatabaseHelper {
     var directory = await getApplicationDocumentsDirectory();
     String path = join(directory.path, 'ddw_duel.db');
 
-    var myDatabase = await openDatabase(path, version: 1, onCreate: _createDb);
+    var myDatabase = await openDatabase(path, version: 2, onCreate: _onCreateDb, onUpgrade: _onUpgradeDb);
     return myDatabase;
   }
 
-  void _createDb(Database db, int newVersion) async {
+  void _onCreateDb(Database db, int newVersion) async {
     Event.initTable(db, newVersion);
     Team.initTable(db, newVersion);
     Player.initTable(db, newVersion);
     Game.initTable(db, newVersion);
     Duel.initTable(db, newVersion);
+  }
+
+  void _onUpgradeDb(Database db, int oldVersion, int newVersion) async {
+    Event.upgradeTable(db, oldVersion, newVersion);
+    Team.upgradeTable(db, oldVersion, newVersion);
+    Player.upgradeTable(db, oldVersion, newVersion);
+    Game.upgradeTable(db, oldVersion, newVersion);
+    Duel.upgradeTable(db, oldVersion, newVersion);
   }
 }

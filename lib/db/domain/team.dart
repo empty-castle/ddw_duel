@@ -8,13 +8,15 @@ class Team implements TableAbstract {
   final int eventId;
   double point;
   int isForfeited;
+  int forfeitRound;
 
   Team(
       {this.teamId,
       required this.eventId,
       this.point = 0.0,
       required this.name,
-      this.isForfeited = 0});
+      this.isForfeited = 0,
+      this.forfeitRound = 0});
 
   @override
   Map<String, dynamic> toMap() {
@@ -22,7 +24,8 @@ class Team implements TableAbstract {
       TeamEnum.name.label: name,
       TeamEnum.eventId.label: eventId,
       TeamEnum.point.label: point,
-      TeamEnum.isForfeited.label: isForfeited
+      TeamEnum.isForfeited.label: isForfeited,
+      TeamEnum.forfeitRound.label: forfeitRound,
     };
   }
 
@@ -33,8 +36,17 @@ class Team implements TableAbstract {
         ${TeamEnum.name.label} TEXT,
         ${TeamEnum.eventId.label} INTEGER,
         ${TeamEnum.point.label} REAL,
-        ${TeamEnum.isForfeited.label} INTEGER
+        ${TeamEnum.isForfeited.label} INTEGER DEFAULT 0,
+        ${TeamEnum.forfeitRound.label} INTEGER DEFAULT 0
       )
     ''');
+  }
+
+  static Future<void> upgradeTable(
+      Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''ALTER TABLE ${TeamEnum.tableName.label} ADD COLUMN ${TeamEnum.forfeitRound.label} INTEGER;''');
+      await db.execute('''UPDATE ${TeamEnum.tableName.label} SET ${TeamEnum.forfeitRound.label} = 0;''');
+    }
   }
 }

@@ -4,7 +4,8 @@ enum TeamEnum {
   name('name'),
   eventId('eventId'),
   point('point'),
-  isForfeited('isForfeited')
+  isForfeited('isForfeited'),
+  forfeitRound('forfeitRound'),
   ;
 
   final String label;

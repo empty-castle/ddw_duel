@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:ddw_duel/base/dialog_helper.dart';
 import 'package:ddw_duel/base/player_helper.dart';
 import 'package:ddw_duel/base/snackbar_helper.dart';
 import 'package:ddw_duel/db/domain/duel.dart';
@@ -34,15 +35,98 @@ class RoundView extends StatefulWidget {
 
 class _RoundViewState extends State<RoundView> {
   final RoundRepositoryCustom roundRepositoryCustom = RoundRepositoryCustom();
-  final EventRepository eventRepo = EventRepository();
-  final GameRepository gameRepo = GameRepository();
-  final TeamRepository teamRepo = TeamRepository();
+  final EventRepository eventRepository = EventRepository();
+  final GameRepository gameRepository = GameRepository();
+  final TeamRepository teamRepository = TeamRepository();
   final DuelRepository duelRepository = DuelRepository();
   final PlayerRepository playerRepository = PlayerRepository();
 
   int? _selectedRound;
 
   late Future<void> _future;
+
+  void _onPressedReturn() {
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
+
+    Future<void> Function() func;
+    String content = '';
+    if (selectedEvent.currentRound > selectedEvent.endRound) {
+      func = _returnRound;
+      content = '현재 진행 중인 ${selectedEvent.currentRound}라운드를 되돌리겠습니까?';
+    } else {
+      func = _returnScoring;
+      content = '${selectedEvent.endRound}라운드의 집계를 취소하시겠습니까?';
+    }
+
+    DialogHelper.show(
+        context: context,
+        title: '되돌리기 확인',
+        content: content,
+        onPressedFunc: () => func());
+  }
+
+  bool _isDisabledReturnButton() {
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
+    return selectedEvent.currentRound < 1;
+  }
+
+  Future<void> _returnRound() async {
+    // todo 현재 라운드에 기권한 팀 롤백 시키기
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
+
+    List<Game> games = await gameRepository.findCurrentRoundGames(
+        selectedEvent.eventId!, selectedEvent.currentRound);
+    for (Game game in games) {
+      duelRepository.deleteDuel(game.gameId!);
+    }
+    gameRepository.deleteCurrentRoundGame(
+        selectedEvent.eventId!, selectedEvent.currentRound);
+
+    selectedEvent.currentRound = selectedEvent.currentRound - 1;
+    await eventRepository.saveEvent(selectedEvent);
+
+    if (!mounted) return;
+    Provider.of<SelectedEventProvider>(context, listen: false)
+        .setSelectedEvent(selectedEvent);
+  }
+
+  Future<void> _returnScoring() async {
+    Event selectedEvent =
+        Provider.of<SelectedEventProvider>(context, listen: false)
+            .selectedEvent!;
+
+    List<Game> games = await gameRepository.findCurrentRoundGames(
+        selectedEvent.eventId!, selectedEvent.currentRound);
+    for (Game game in games) {
+      Team? team1 = await teamRepository.findTeam(game.team1Id);
+      if (team1 != null) {
+        team1.point = team1.point - game.team1Point;
+        teamRepository.saveTeam(team1);
+      }
+      Team? team2 = await teamRepository.findTeam(game.team2Id);
+      if (team2 != null) {
+        team2.point = team2.point - game.team2Point;
+        teamRepository.saveTeam(team2);
+      }
+
+      game.team1Point = 0.0;
+      game.team2Point = 0.0;
+      gameRepository.saveGame(game);
+    }
+
+    selectedEvent.endRound = selectedEvent.endRound - 1;
+    await eventRepository.saveEvent(selectedEvent);
+
+    if (!mounted) return;
+    Provider.of<SelectedEventProvider>(context, listen: false)
+        .setSelectedEvent(selectedEvent);
+  }
 
   void _onPressedScoring() async {
     Event selectedEvent =
@@ -60,10 +144,10 @@ class _RoundViewState extends State<RoundView> {
       SnackbarHelper.showErrorSnackbar(context, '모든 경기의 결과를 입력해주세요.');
       return;
     }
-    aggregatePoints(roundModel.entryMap, roundModel.gameModels);
+    _aggregatePoints(roundModel.entryMap, roundModel.gameModels);
 
     selectedEvent.endRound = _selectedRound!;
-    eventRepo.saveEvent(selectedEvent);
+    eventRepository.saveEvent(selectedEvent);
 
     setState(() {
       int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
@@ -73,7 +157,7 @@ class _RoundViewState extends State<RoundView> {
     });
   }
 
-  void aggregatePoints(
+  void _aggregatePoints(
       Map<int, EntryModel> entryMap, List<GameModel> gameModels) {
     for (var gameModel in gameModels) {
       double team1TotalPoints = 0.0;
@@ -87,19 +171,19 @@ class _RoundViewState extends State<RoundView> {
       gameModel.game.team1Point = team1TotalPoints;
       gameModel.game.team2Point = team2TotalPoints;
 
-      gameRepo.saveGame(gameModel.game);
+      gameRepository.saveGame(gameModel.game);
 
       Team? team1 = entryMap[gameModel.game.team1Id]?.team;
       Team? team2 = entryMap[gameModel.game.team2Id]?.team;
 
       if (team1 != null) {
         team1.point = team1.point + team1TotalPoints;
-        teamRepo.saveTeam(team1);
+        teamRepository.saveTeam(team1);
       }
 
       if (team2 != null) {
         team2.point = team2.point + team2TotalPoints;
-        teamRepo.saveTeam(team2);
+        teamRepository.saveTeam(team2);
       }
     }
   }
@@ -162,7 +246,7 @@ class _RoundViewState extends State<RoundView> {
 
   void _createNewRound(Event selectedEvent) {
     selectedEvent.currentRound = selectedEvent.currentRound + 1;
-    eventRepo.updateEvent(selectedEvent);
+    eventRepository.updateEvent(selectedEvent);
     Provider.of<SelectedEventProvider>(context, listen: false)
         .setSelectedEvent(selectedEvent);
   }
@@ -190,7 +274,7 @@ class _RoundViewState extends State<RoundView> {
         remainTeamIdQueue, games, selectedEvent, teamMatchHistory);
 
     for (var game in games) {
-      gameRepo.saveGame(game);
+      gameRepository.saveGame(game);
     }
   }
 
@@ -217,7 +301,7 @@ class _RoundViewState extends State<RoundView> {
       rankedTeamIdList.add(lastRankedTeamIdList);
     }
 
-    int gameId = await gameRepo.saveGame(
+    int gameId = await gameRepository.saveGame(
         _makeGame(selectedEvent, lastRankedTeamId, null, GameStatus.walkover));
     List<Player> players = await playerRepository.findPlayers(lastRankedTeamId);
     _saveDuelWalkover(
@@ -489,6 +573,17 @@ class _RoundViewState extends State<RoundView> {
                               padding: const EdgeInsets.only(left: 16.0),
                               child: Row(
                                 children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: ElevatedButton(
+                                      onPressed: _isDisabledReturnButton()
+                                          ? null
+                                          : _onPressedReturn,
+                                      child: const Text(
+                                        '되돌리기',
+                                      ),
+                                    ),
+                                  ),
                                   Padding(
                                     padding: const EdgeInsets.only(right: 8.0),
                                     child: ElevatedButton(

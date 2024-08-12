@@ -81,16 +81,18 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
 
   void _onPressedForfeitTeam(Team team) {
     Future<void> onPressed(Team team) async {
+      Event selectedEvent =
+          Provider.of<SelectedEventProvider>(context, listen: false)
+              .selectedEvent!;
+
       team.isForfeited = 1;
-      await teamRepo.saveTeam(team);
+      team.forfeitRound = selectedEvent.endRound;
+      team.forfeitRound = await teamRepo.saveTeam(team);
       setState(() {});
 
       if (!mounted) return;
-      int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
-          .selectedEvent!
-          .eventId!;
       await Provider.of<EntryProvider>(context, listen: false)
-          .fetchEntries(eventId);
+          .fetchEntries(selectedEvent.eventId!);
 
       if (!mounted) return;
       SnackbarHelper.showInfoSnackbar(
