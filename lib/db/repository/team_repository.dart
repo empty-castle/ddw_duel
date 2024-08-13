@@ -26,6 +26,19 @@ class TeamRepository {
     }
   }
 
+  Future<List<Team>> findCurrentRoundForfeitTeams(
+      int eventId, int round) async {
+    Database db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+        TeamEnum.tableName.label,
+        where:
+            '${TeamEnum.eventId.label} = ? AND ${TeamEnum.forfeitRound.label} = ?',
+        whereArgs: [eventId, round]);
+    return List.generate(maps.length, (i) {
+      return _makeTeam(maps[i]);
+    });
+  }
+
   Future<List<Team>> findTeams(int eventId) async {
     Database db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -74,6 +87,7 @@ class TeamRepository {
         eventId: map[TeamEnum.eventId.label],
         name: map[TeamEnum.name.label],
         point: map[TeamEnum.point.label],
-        isForfeited: map[TeamEnum.isForfeited.label]);
+        isForfeited: map[TeamEnum.isForfeited.label],
+        forfeitRound: map[TeamEnum.forfeitRound.label]);
   }
 }

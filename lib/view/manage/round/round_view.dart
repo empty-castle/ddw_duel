@@ -75,7 +75,6 @@ class _RoundViewState extends State<RoundView> {
   }
 
   Future<void> _returnRound() async {
-    // todo 현재 라운드에 기권한 팀 롤백 시키기
     Event selectedEvent =
         Provider.of<SelectedEventProvider>(context, listen: false)
             .selectedEvent!;
@@ -87,6 +86,14 @@ class _RoundViewState extends State<RoundView> {
     }
     gameRepository.deleteCurrentRoundGame(
         selectedEvent.eventId!, selectedEvent.currentRound);
+
+    List<Team> forfeitTeams = await teamRepository.findCurrentRoundForfeitTeams(
+        selectedEvent.eventId!, selectedEvent.currentRound);
+    for (Team team in forfeitTeams) {
+      team.forfeitRound = 0;
+      team.isForfeited = 0;
+      teamRepository.saveTeam(team);
+    }
 
     selectedEvent.currentRound = selectedEvent.currentRound - 1;
     await eventRepository.saveEvent(selectedEvent);
