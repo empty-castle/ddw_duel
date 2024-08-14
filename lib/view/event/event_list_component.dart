@@ -76,8 +76,15 @@ class _EventListComponentState extends State<EventListComponent> {
       await Provider.of<EventProvider>(context, listen: false).fetchEvent();
 
       if (!mounted) return;
-      Provider.of<SelectedEventProvider>(context, listen: false).setSelectedEvent(null);
+      Provider.of<SelectedEventProvider>(context, listen: false)
+          .setSelectedEvent(null);
       SnackbarHelper.showInfoSnackbar(context, "삭제가 완료되었습니다.");
+    }
+
+    if (_selectedEventId == null) {
+      DialogHelper.error(
+          context: context, title: '이벤트 삭제 에러', content: '선택된 이벤트가 없습니다.');
+      return;
     }
 
     DialogHelper.show(
@@ -111,7 +118,7 @@ class _EventListComponentState extends State<EventListComponent> {
                         width: 8,
                       ),
                       ElevatedButton(
-                        onPressed: _selectedEventId != null ? _onPressedDeleteEvent : null,
+                        onPressed: _onPressedDeleteEvent,
                         child: const Text(
                           '이벤트 삭제',
                         ),

@@ -1,3 +1,4 @@
+import 'package:ddw_duel/base/dialog_helper.dart';
 import 'package:ddw_duel/base/snackbar_helper.dart';
 import 'package:ddw_duel/db/domain/team.dart';
 import 'package:ddw_duel/db/model/entry_model.dart';
@@ -31,6 +32,14 @@ class _TeamListComponentState extends State<TeamListComponent> {
   }
 
   void _onPressedNewTeam() async {
+    if (_isInProgress) {
+      DialogHelper.error(
+          context: context,
+          title: '팀 추가 에러',
+          content: '라운드가 진행 된 상태에서는 팀 추가가 불가능합니다.');
+      return;
+    }
+
     int eventId = Provider.of<SelectedEventProvider>(context, listen: false)
         .selectedEvent!
         .eventId!;
@@ -71,7 +80,7 @@ class _TeamListComponentState extends State<TeamListComponent> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: ElevatedButton(
-                  onPressed: _isInProgress ? null : _onPressedNewTeam,
+                  onPressed: _onPressedNewTeam,
                   child: const Text(
                     '팀 추가',
                   ),

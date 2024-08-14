@@ -50,6 +50,12 @@ class _RoundViewState extends State<RoundView> {
         Provider.of<SelectedEventProvider>(context, listen: false)
             .selectedEvent!;
 
+    if (selectedEvent.currentRound < 1) {
+      DialogHelper.error(
+          context: context, title: '되돌리기 에러', content: '되돌릴 진행 사항이 없습니다.');
+      return;
+    }
+
     Future<void> Function() func;
     String content = '';
     if (selectedEvent.currentRound > selectedEvent.endRound) {
@@ -65,13 +71,6 @@ class _RoundViewState extends State<RoundView> {
         title: '되돌리기 확인',
         content: content,
         onPressedFunc: () => func());
-  }
-
-  bool _isDisabledReturnButton() {
-    Event selectedEvent =
-        Provider.of<SelectedEventProvider>(context, listen: false)
-            .selectedEvent!;
-    return selectedEvent.currentRound < 1;
   }
 
   Future<void> _returnRound() async {
@@ -140,6 +139,15 @@ class _RoundViewState extends State<RoundView> {
         Provider.of<SelectedEventProvider>(context, listen: false)
             .selectedEvent!;
 
+    String errorTitle = '집계 에러';
+    if (_selectedRound == null || _selectedRound! <= selectedEvent.endRound) {
+      DialogHelper.error(
+          context: context,
+          title: errorTitle,
+          content: '현재 진행 중인 라운드를 선택해주세요.');
+      return;
+    }
+
     await Provider.of<RoundProvider>(context, listen: false)
         .fetchRound(selectedEvent.eventId!, _selectedRound!);
 
@@ -148,7 +156,8 @@ class _RoundViewState extends State<RoundView> {
     RoundModel roundModel =
         Provider.of<RoundProvider>(context, listen: false).round!;
     if (!_validateDuelsInGameModels(roundModel.gameModels)) {
-      SnackbarHelper.showErrorSnackbar(context, '모든 경기의 결과를 입력해주세요.');
+      DialogHelper.error(
+          context: context, title: errorTitle, content: '모든 경기의 결과를 입력해주세요.');
       return;
     }
     _aggregatePoints(roundModel.entryMap, roundModel.gameModels);
@@ -211,6 +220,13 @@ class _RoundViewState extends State<RoundView> {
     Event selectedEvent =
         Provider.of<SelectedEventProvider>(context, listen: false)
             .selectedEvent!;
+    if (selectedEvent.currentRound != selectedEvent.endRound) {
+      DialogHelper.error(
+          context: context,
+          title: '라운드 생성 에러',
+          content: '집계가 완료되어야 라운드 생성이 가능합니다.');
+      return;
+    }
     Map<int, EntryModel> entryMap =
         Provider.of<RoundProvider>(context, listen: false).round!.entryMap;
 
@@ -513,22 +529,6 @@ class _RoundViewState extends State<RoundView> {
     });
   }
 
-  bool _isDisabledScoringButton() {
-    Event selectedEvent =
-        Provider.of<SelectedEventProvider>(context).selectedEvent!;
-    if (_selectedRound != null) {
-      return _selectedRound! <= selectedEvent.endRound;
-    } else {
-      return true;
-    }
-  }
-
-  bool _isDisabledNewRoundButton() {
-    Event selectedEvent =
-        Provider.of<SelectedEventProvider>(context).selectedEvent!;
-    return selectedEvent.currentRound != selectedEvent.endRound;
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -583,9 +583,7 @@ class _RoundViewState extends State<RoundView> {
                                   Padding(
                                     padding: const EdgeInsets.only(right: 8.0),
                                     child: ElevatedButton(
-                                      onPressed: _isDisabledReturnButton()
-                                          ? null
-                                          : _onPressedReturn,
+                                      onPressed: _onPressedReturn,
                                       child: const Text(
                                         '되돌리기',
                                       ),
@@ -594,18 +592,14 @@ class _RoundViewState extends State<RoundView> {
                                   Padding(
                                     padding: const EdgeInsets.only(right: 8.0),
                                     child: ElevatedButton(
-                                      onPressed: _isDisabledScoringButton()
-                                          ? null
-                                          : _onPressedScoring,
+                                      onPressed: _onPressedScoring,
                                       child: const Text(
                                         '집계',
                                       ),
                                     ),
                                   ),
                                   ElevatedButton(
-                                    onPressed: _isDisabledNewRoundButton()
-                                        ? null
-                                        : _onPressedNewRound,
+                                    onPressed: _onPressedNewRound,
                                     child: const Text(
                                       '라운드 생성',
                                     ),

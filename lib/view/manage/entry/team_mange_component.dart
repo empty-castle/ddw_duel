@@ -72,6 +72,14 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
       SnackbarHelper.showInfoSnackbar(context, "${team.name} 팀 삭제가 완료되었습니다.");
     }
 
+    if (_isInProgress) {
+      DialogHelper.error(
+          context: context,
+          title: '팀 삭제 에러',
+          content: '라운드가 진행 된 상태에서는 팀 삭제가 불가능합니다.');
+      return;
+    }
+
     DialogHelper.show(
         context: context,
         title: '팀 삭제 확인',
@@ -99,15 +107,28 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
           context, "${_teamNameController.text} 기권 처리가 완료되었습니다.");
     }
 
+    String errorTitle = '기권 에러';
+    if (!_isEndRound) {
+      DialogHelper.error(
+          context: context,
+          title: errorTitle,
+          content: '라운드가 진행 중입니다. 대진표 화면에서 기권 처리 가능합니다.');
+      return;
+    }
+
+    if (team.isForfeited == 1) {
+      DialogHelper.error(
+          context: context,
+          title: errorTitle,
+          content: '해당 팀은 이미 기권 처리 되었습니다.');
+      return;
+    }
+
     DialogHelper.show(
         context: context,
         title: '기권 확인',
         content: '정말로 기권 처리하시겠습니까?',
         onPressedFunc: () => onPressed(team));
-  }
-
-  bool _isEnabledForfeitButton(Team team) {
-    return _isEndRound && team.isForfeited == 0;
   }
 
   @override
@@ -146,21 +167,16 @@ class _TeamMangeComponentState extends State<TeamMangeComponent> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: ElevatedButton(
-                        onPressed: _isEnabledForfeitButton(
-                                provider.selectedEntryModel!.team)
-                            ? () => _onPressedForfeitTeam(
-                                provider.selectedEntryModel!.team)
-                            : null,
+                        onPressed: () => _onPressedForfeitTeam(
+                            provider.selectedEntryModel!.team),
                         child: const Text(
                           '기권',
                         ),
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: _isInProgress
-                          ? null
-                          : () => _onPressedDeleteTeam(
-                              provider.selectedEntryModel!.team),
+                      onPressed: () => _onPressedDeleteTeam(
+                          provider.selectedEntryModel!.team),
                       child: const Text(
                         '팀 삭제',
                       ),
