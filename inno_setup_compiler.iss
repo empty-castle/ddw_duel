@@ -1,11 +1,11 @@
 [Setup]
 AppName=DDWduel
-AppVersion=0.1
+AppVersion=1.0
 AppId={{00fce5fd-5630-40cd-87df-f4452c5cc339}}
 DefaultDirName={pf}\DDWduel
 DefaultGroupName=DDWduel
 OutputDir=.
-OutputBaseFilename=DDWduelSetup-0.1
+OutputBaseFilename=DDWduelSetup-1.0
 Compression=lzma
 SolidCompression=yes
 
